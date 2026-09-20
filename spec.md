@@ -1715,6 +1715,17 @@ Usados quando `rotulo` é nulo.
 | Painel, título · Compartilhar | `Compartilhar` |
 | Painel, título · Ajustes | `Ajustes` |
 | Painel, contador de links | `<n> de <teto>` |
+| Ajustes, seção endereço | `Seu endereço` |
+| Ajustes, botão trocar endereço | `Trocar endereço` |
+| Ajustes, seção conta | `Conta` |
+| Ajustes, rótulo e-mail | `Entrando com` |
+| Ajustes, rótulo plano | `Plano` |
+| Ajustes, seção busca | `Aparecer em buscas` |
+| Ajustes, ajuda de busca | `Com isso desligado, seu cartão não aparece no Google. O link continua funcionando para quem você mandar.` |
+| Ajustes, seção de risco | `Zona de risco` |
+| Ajustes, botão sair | `Sair desta conta` |
+| Ajustes, botão excluir | `Excluir minha conta` |
+| Ajustes, campo de confirmação | `Digite <handle> para confirmar` |
 | Painel, estado · no ar | `No ar em` |
 | Painel, estado · fora do ar | `Fora do ar` |
 | Login, título | `Entre para montar seu cartão` |

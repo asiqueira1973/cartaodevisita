@@ -14,13 +14,14 @@ process.env.EARLY_ADOPTER_ABERTO = 'true'
 
 const { db } = await import('@/lib/firebase/admin')
 const {
-  buscarCartaoPorHandle, garantirUsuario, registrarVisita, reservarHandle,
-  resolverIdPermanente, trocarHandle, visitasRecentes,
+  buscarCartaoPorHandle, excluirConta, garantirUsuario, registrarAcaoAdmin,
+  registrarVisita, reservarHandle, resolverIdPermanente, trocarHandle,
+  visitasRecentes,
 } = await import('@/lib/firebase/firestore')
 
 /** Apaga tudo entre os testes, para um não enxergar o estado do outro. */
 async function limpar() {
-  for (const col of ['usuarios', 'cartoes', 'handles', 'ids_permanentes', 'visitas_diarias']) {
+  for (const col of ['usuarios', 'cartoes', 'handles', 'ids_permanentes', 'visitas_diarias', 'acoes_admin']) {
     const snap = await db().collection(col).get()
     await Promise.all(snap.docs.map((d) => d.ref.delete()))
   }
@@ -184,5 +185,49 @@ describe('visitas por faixa de id (critério 8.7.7)', () => {
   it('conta sem visita devolve lista vazia, não erro', async () => {
     await contaNova('u1')
     expect(await visitasRecentes('u1', 30)).toEqual([])
+  })
+})
+
+describe('exclusão da conta (critérios 8.8.5 e 8.8.6, spec 20.4)', () => {
+  it('apaga tudo do titular e LIBERA o endereço', async () => {
+    await contaNova('u1')
+    const { id_permanente } = (await reservarHandle('u1', 'vaisair'))!
+    await registrarVisita('u1', 'por_link')
+
+    await excluirConta('u1')
+
+    expect((await db().collection('usuarios').doc('u1').get()).exists).toBe(false)
+    expect((await db().collection('cartoes').doc('u1').get()).exists).toBe(false)
+    expect((await db().collection('handles').doc('vaisair').get()).exists).toBe(false)
+    expect((await db().collection('ids_permanentes').doc(id_permanente).get()).exists).toBe(false)
+    expect(await visitasRecentes('u1', 30)).toEqual([])
+
+    // O endereço volta para o pool: outra pessoa pode pegá-lo (critério 8.8.6).
+    await contaNova('u2')
+    expect(await reservarHandle('u2', 'vaisair')).not.toBeNull()
+  })
+
+  it('NÃO apaga o log de auditoria — ele é de atos da plataforma, não do titular', async () => {
+    await contaNova('u1')
+    await reservarHandle('u1', 'moderado')
+    await registrarAcaoAdmin('admin@exemplo.com', 'despublicou_cartao', 'u1', 'denúncia')
+
+    await excluirConta('u1')
+
+    const log = await db().collection('acoes_admin').get()
+    expect(log.size).toBe(1)
+    // O alvo passa a apontar para uma conta inexistente, e isso é o
+    // comportamento correto de um log (spec 7.8).
+    expect(log.docs[0].data().usuario_id_alvo).toBe('u1')
+  })
+
+  it('o cartão some da busca pública depois da exclusão', async () => {
+    await contaNova('u1')
+    await reservarHandle('u1', 'sumiu')
+    await db().collection('cartoes').doc('u1').update({ publicado: true })
+    expect(await buscarCartaoPorHandle('sumiu')).not.toBeNull()
+
+    await excluirConta('u1')
+    expect(await buscarCartaoPorHandle('sumiu')).toBeNull()
   })
 })
