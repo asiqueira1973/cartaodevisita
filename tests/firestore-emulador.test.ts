@@ -14,8 +14,8 @@ process.env.EARLY_ADOPTER_ABERTO = 'true'
 
 const { db } = await import('@/lib/firebase/admin')
 const {
-  buscarCartaoPorHandle, garantirUsuario, reservarHandle,
-  resolverIdPermanente, trocarHandle,
+  buscarCartaoPorHandle, garantirUsuario, registrarVisita, reservarHandle,
+  resolverIdPermanente, trocarHandle, visitasRecentes,
 } = await import('@/lib/firebase/firestore')
 
 /** Apaga tudo entre os testes, para um não enxergar o estado do outro. */
@@ -148,5 +148,41 @@ describe('pegadinha 18.4.4 — trocar o endereço não mata o cartão físico', 
     await trocarHandle('u1', 'segundo')
     const depois = (await db().collection('usuarios').doc('u1').get()).data()?.id_permanente
     expect(depois).toBe(antes)
+  })
+})
+
+describe('visitas por faixa de id (critério 8.7.7)', () => {
+  it('lê só a janela pedida e só da conta certa', async () => {
+    await contaNova('u1')
+    await contaNova('u2')
+
+    await registrarVisita('u1', 'por_link')
+    await registrarVisita('u1', 'por_codigo')
+    await registrarVisita('u2', 'por_link')
+
+    const deU1 = await visitasRecentes('u1', 30)
+    expect(deU1).toHaveLength(1)
+    expect(deU1[0].usuario_id).toBe('u1')
+    expect(deU1[0].total).toBe(2)
+    expect(deU1[0].por_codigo).toBe(1)
+
+    // A faixa não pode alcançar o documento da outra conta.
+    expect(deU1.some((v) => v.usuario_id === 'u2')).toBe(false)
+  })
+
+  it('todos os contadores nascem em zero, nunca indefinidos', async () => {
+    // Um documento criado só com por_link deixava salvou_contato indefinido, e
+    // a soma do painel virava NaN.
+    await contaNova('u1')
+    await registrarVisita('u1', 'por_link')
+    const [dia] = await visitasRecentes('u1', 30)
+    for (const campo of ['total', 'por_link', 'por_codigo', 'salvou_contato', 'abriu_whatsapp'] as const) {
+      expect(typeof dia[campo], `${campo} deveria ser número`).toBe('number')
+    }
+  })
+
+  it('conta sem visita devolve lista vazia, não erro', async () => {
+    await contaNova('u1')
+    expect(await visitasRecentes('u1', 30)).toEqual([])
   })
 })

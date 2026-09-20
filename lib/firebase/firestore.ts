@@ -6,7 +6,7 @@
 //
 // Nada aqui roda no navegador (pegadinha 18.4.3).
 
-import { FieldValue, Timestamp, type Transaction } from 'firebase-admin/firestore'
+import { FieldPath, FieldValue, Timestamp, type Transaction } from 'firebase-admin/firestore'
 import { db } from '@/lib/firebase/admin'
 import { generatePermanentId } from '@/lib/ids'
 import { isHandleSelectable } from '@/lib/handle'
@@ -328,12 +328,33 @@ export async function registrarVisita(usuarioId: string, origem: OrigemVisita): 
   )
 }
 
-/** Soma as visitas dos últimos N dias, para o painel (critério 8.7.7). */
+/**
+ * Lê as visitas dos últimos N dias (critério 8.7.7).
+ *
+ * A consulta é por FAIXA DE ID DE DOCUMENTO, não por dois campos. Filtrar
+ * `usuario_id == x` e `data >= y` ao mesmo tempo exigiria um índice composto —
+ * que precisa ser criado, versionado e implantado, e cuja falta só aparece em
+ * runtime, com a tela quebrada na cara de quem abriu (aconteceu em 20/09/2026).
+ *
+ * Como o id é `<usuario_id>_<AAAA-MM-DD>` (spec 7.6), a faixa
+ * `<uid>_<limite>` até `<uid>_\uf8ff` devolve exatamente a janela daquela
+ * conta, usando só o índice automático de `__name__`. Zero índice a manter, e
+ * lê apenas os dias que existem.
+ *
+ * Este é o motivo de o id do documento ter sido desenhado assim.
+ */
 export async function visitasRecentes(usuarioId: string, dias = 30): Promise<VisitaDiaria[]> {
   const corte = new Date(Date.now() - dias * 24 * 60 * 60 * 1000)
   const limite = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(corte)
+
   const snap = await db().collection(VISITAS_DIARIAS)
-    .where('usuario_id', '==', usuarioId).where('data', '>=', limite).get()
+    .orderBy(FieldPath.documentId())
+    .startAt(`${usuarioId}_${limite}`)
+    // \uf8ff é o maior caractere da área de uso privado do Unicode: ele fecha a
+    // faixa neste usuário sem alcançar o id de outro.
+    .endAt(`${usuarioId}_\uf8ff`)
+    .get()
+
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as VisitaDiaria)
 }
 

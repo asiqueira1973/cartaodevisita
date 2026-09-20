@@ -106,6 +106,18 @@ npm run diagnostico    # ida e volta real no Firestore + confere as REGRAS publi
 npm run deploy:rules   # publica firestore.rules e storage.rules
 ```
 
+**O emulador do Firestore NÃO exige índice composto — a produção exige.**
+Uma consulta que filtra por dois campos (`where(a).where(b)`) passa no emulador
+e explode em produção com `FAILED_PRECONDITION: The query requires an index`,
+na cara de quem abriu a tela. Aconteceu com `visitasRecentes` em 20/09/2026.
+
+A saída preferida **não** é criar o índice: é desenhar a consulta para não
+precisar de um. `visitasRecentes` consulta por **faixa de id de documento**
+(`<uid>_<data>`), que usa só o índice automático de `__name__`. Quando um índice
+for mesmo inevitável, ele entra em `firestore.indexes.json` e vai no
+`npm run deploy:rules` — nunca criado só pelo link do console, senão o
+repositório mente igual às regras.
+
 **Nunca rode `npm run build` com o `npm run dev` no ar.** O build sobrescreve o
 `.next` que o servidor de desenvolvimento está usando, e toda rota passa a dar
 500 com `Cannot find module './vendor-chunks/...'`. A mensagem não diz o que
