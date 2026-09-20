@@ -527,6 +527,7 @@ testada, porque nenhuma suíte prova isto.
 |---|---|---|
 | QR lido pela câmera nativa | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
 | `.vcf` abriu e salvou o contato | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
+| `.vcf` abriu e salvou o contato | **funcionou** — 20/09/2026 | **Android** (modelo a registrar) |
 | Envio do link por WhatsApp | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
 | Etiqueta NTAG215 gravada e lida | **previsto para a semana de 22/09/2026** — etiquetas e cartões já comprados | iPhone 13 mini |
 | Telemetria chegando no Visão de Produto | **funcionou** — 20/09/2026 | produção |
@@ -544,12 +545,15 @@ compartilhamento. Fecha a verificação da seção 21.3 do spec.
 | `cartao_publicado` · propriedade `minutos_desde_criacao` | Mede a promessa da home, "monte em cinco minutos". **Se a mediana for 20, a copy está mentindo** |
 | `endereco_nfc_copiado` | **Decide a prioridade da seção 28.1.** Se quase ninguém copiar, gravar NFC não vale um app — nem a segunda etapa do roadmap |
 
-**O que o iPhone 13 mini prova e o que não prova.** Ele é iPhone XS ou mais
-novo, então a leitura de etiqueta NFC em segundo plano funciona nele (regra
-11.6) — o teste de NFC que vem tem chance real de passar. O que ele **não**
-prova é o lado Android: o `.vcf` é lido por implementações diferentes lá, e é
-justamente onde a versão 3.0 foi escolhida em vez da 4.0 (spec 14.1). **Um
-teste em Android continua pendente**, e é o que fecharia o critério 8.6.7.
+**A escolha do vCard 3.0 está PROVADA, não mais assumida.** A assunção 24.9 do
+spec escolheu a versão 3.0 em vez da 4.0 por compatibilidade com Android, e essa
+era uma aposta: a 4.0 é mais limpa, e trocar depois de gente com contato salvo
+seria caro. Em 20/09/2026 o mesmo arquivo abriu e salvou o contato **no iPhone e
+no Android** — os dois lados que importam. A aposta se sustentou.
+
+**Sobre o NFC que vem:** o iPhone 13 mini é iPhone XS ou mais novo, então a
+leitura de etiqueta em segundo plano funciona nele (regra 11.6). O teste desta
+semana tem chance real de passar.
 
 > **Ainda falta a versão do iOS.** O modelo já ajuda, mas se um dia alguém
 > relatar que o contato não salva, a pergunta será *em que versão isso já

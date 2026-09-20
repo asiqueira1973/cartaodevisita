@@ -2572,7 +2572,7 @@ aparelho a coisa foi realmente testada.
 | 24.6 | **Sem Cloud Functions.** Toda lógica em rota de servidor do Next | Menos superfície, menos deploy, mesmo padrão do ViraPágina | Só faria falta para rotina agendada (limpeza de visitas antigas), que por ora é script manual |
 | 24.7 | **Sem modo escuro na página pública** | O cartão tem cor escolhida pelo dono; herdar o tema do visitante desfigura a peça de outra pessoa | Fácil de mudar, mas exige definir cada template nos dois temas |
 | 24.8 | **Português do Brasil apenas**, sem estrutura de tradução | Princípio 0.5 e público-alvo da seção 1 | Acrescentar depois é trabalhoso; acrescentar agora é complexidade prematura |
-| 24.9 | **vCard 3.0**, não 4.0 | Compatibilidade com Android antigo (14.1) | A 4.0 é mais limpa; se testar bem nos aparelhos, dá para trocar |
+| ~~24.9~~ | **vCard 3.0**, não 4.0 | Compatibilidade com Android (14.1) | **CONFIRMADA em 20/09/2026**: o mesmo arquivo abriu e salvou o contato no iPhone 13 mini e num Android. Deixou de ser assunção |
 | 24.10 | **Oito cores fixas**, sem seletor livre | Contraste garantido (16.2) e cartão feio prejudica o produto | Seletor livre exige validação de contraste em tempo real e um modo de recusar a escolha da pessoa |
 | 24.11 | **Quatro templates** com os nomes de 16.3 | Cobre os arquétipos sem virar editor | A etapa de design (seção 27) pode propor outros — é o momento certo para mudar |
 | 24.23 | **Painel monocromático, sem cor de marca** (16.6) | Decisão de 20/09/2026, a partir do Ads Manager do ChatGPT. Chrome sem cor faz a cor do cartão saltar | Reverter significa reescrever 16.6 e redesenhar o painel inteiro |
@@ -2685,7 +2685,7 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 - [x] QR lido pela câmera nativa — **20/09/2026, iPhone 13 mini**.
 - [x] `.vcf` aberto e o contato salvo de verdade — **20/09/2026, iPhone 13 mini**.
 - [x] Envio do link por WhatsApp — **20/09/2026, iPhone 13 mini**.
-- [ ] **Os três acima em um Android.** O `.vcf` é lido por implementações diferentes lá, e é onde a escolha da versão 3.0 em vez da 4.0 (14.1) se justifica ou não.
+- [x] **O `.vcf` em um Android** — **20/09/2026**, modelo a registrar. Com isso a assunção 24.9 (vCard 3.0 em vez de 4.0) deixa de ser aposta: o mesmo arquivo abre nos dois sistemas.
 - [ ] Etiqueta **NTAG215** gravada e lida — previsto para a semana de 22/09/2026.
 - [ ] Etiqueta **NTAG215** gravada e lida num iPhone e num Android.
 - [ ] Modelos e versões registrados em `DOCUMENTACAO-TECNICA.md`.
