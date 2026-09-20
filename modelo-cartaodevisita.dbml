@@ -1,0 +1,219 @@
+// ============================================================================
+// Cartão de Visita — modelo de dados
+// Gerado a partir da seção 7 do spec.md. Cole em https://dbdiagram.io
+//
+// ATENÇÃO: o banco é Cloud Firestore (NoSQL), não relacional. As "tabelas"
+// abaixo são COLEÇÕES e as "chaves estrangeiras" são referências por id de
+// documento, resolvidas em código (lib/firebase/firestore.ts), não pelo banco.
+// O diagrama existe para enxergar a forma dos dados e as cardinalidades.
+//
+// Nomes de coleção e de campo em português, snake_case (seção 18.1).
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// usuarios — a conta. Id do documento: o uid do Google.
+// ----------------------------------------------------------------------------
+Table usuarios {
+  id texto [pk, note: 'uid do Google (sub). Não é o e-mail — e-mail muda']
+  email texto [not null, note: 'Só o admin vê']
+  nome_google texto [not null, note: 'Usado para sugerir o handle e pré-preencher o cartão']
+  foto_google_url texto [note: 'Nulo quando o perfil do Google não tem foto. É só sugestão inicial']
+  handle texto [unique, note: 'Nulo entre o primeiro login e a escolha do endereço — único estado sem URL pública']
+  id_permanente texto [unique, note: 'Nulo pelo mesmo motivo. NUNCA muda depois de criado (princípio 0.4)']
+  criado_em timestamp [not null]
+  ultimo_acesso_em timestamp [not null, note: 'Atualizado no máximo 1x/dia, para não escrever a cada requisição']
+  bloqueado booleano [not null, default: false, note: 'Marcado por admin. Cartão de conta bloqueada responde 404']
+  plano plano_conta [not null, note: 'O valor inicial depende de EARLY_ADOPTER_ABERTO e da allowlist ILIMITADOS no momento da criação (regra 11.11)']
+  plano_anterior plano_conta [note: 'Guarda o plano de antes de virar ilimitado pela allowlist, para poder voltar se o e-mail sair da lista. Nulo em conta nunca promovida (regra 11.11.4)']
+
+  Note: 'A conta. Nasce no primeiro acesso dentro de requireDono(), com handle nulo.'
+
+  // Índice sugerido: criado_em desc, para a listagem do admin
+  // Exclusão: HARD DELETE (exigência de LGPD, seção 20.4)
+}
+
+// ----------------------------------------------------------------------------
+// handles — reserva do endereço público. Id do documento: o próprio handle.
+// ----------------------------------------------------------------------------
+Table handles {
+  id texto [pk, note: 'O PRÓPRIO HANDLE, em minúsculas. É a chave de unicidade: o create do Firestore falha se já existir, e é isso que faz um de dois cadastros simultâneos perder']
+  usuario_id texto [not null]
+  criado_em timestamp [not null]
+
+  Note: 'Existe por um motivo único: garantir unicidade atômica do handle.'
+
+  // Formato: ^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])$  (3 a 30 caracteres, regra 11.1)
+  // Não pode estar em HANDLES_RESERVADOS (regra 11.2)
+  // Exclusão: HARD DELETE — troca de handle libera o antigo de volta para o pool
+}
+
+// ----------------------------------------------------------------------------
+// ids_permanentes — reserva do endereço imutável. Id: o próprio id permanente.
+// ----------------------------------------------------------------------------
+Table ids_permanentes {
+  id texto [pk, note: 'O PRÓPRIO ID PERMANENTE. Mesmo padrão e mesmo motivo de handles']
+  usuario_id texto [not null]
+  criado_em timestamp [not null]
+
+  Note: 'O endereço que vai para QR code e etiqueta NFC. Nunca é trocado em conta viva.'
+
+  // Formato: ^[23456789abcdefghjkmnpqrstuvwxyz]{8}$  (regra 11.3)
+  // Alfabeto de 31 chars — sem 0, 1, l, i, o, que confundem quem transcreve à mão
+  // NÃO EXISTE operação de troca, e não deve existir (princípio 0.4)
+  // Exclusão: HARD DELETE, apenas na exclusão da conta
+}
+
+// ----------------------------------------------------------------------------
+// cartoes — o cartão. Id do documento: o MESMO uid do usuário (1:1).
+// ----------------------------------------------------------------------------
+Table cartoes {
+  id texto [pk, note: 'Igual ao usuarios.id. Usar o mesmo id evita uma consulta: quem tem o usuário tem o cartão, por chave direta']
+  usuario_id texto [not null, note: 'Redundante com o id do documento; guardado para consulta por campo']
+  nome_exibicao texto [not null, note: 'O nome grande da página. Até 60 caracteres']
+  cargo texto [note: 'Nulo quando a pessoa não quis preencher. Até 60']
+  empresa texto [note: 'Nulo para autônomo sem razão social. Até 60']
+  bio texto [note: 'Uma linha de apresentação. Nulo por padrão. Até 160 — limite proposital: bio longa transforma o cartão em site']
+  foto_url texto [note: 'Foto de exibição 600x600. Nula quando não subiu foto — a página mostra as iniciais']
+  foto_vcard_url texto [note: 'Derivada 300x300, teto de 80 KB, usada SÓ para embutir no .vcf. Nula sempre que foto_url for nula']
+  links links_cartao [not null, default: `[]`, note: 'Array EMBUTIDO. Teto por plano: 5 no gratuito, 15 nos demais (regra 11.11.2). Teto absoluto 15 em qualquer plano. Ver trade-off na seção 7.5.1']
+  template template_cartao [not null, default: 'minimalista']
+  cor_destaque cor_destaque [not null, default: 'azul', note: 'Enum, não hexadecimal livre — garante contraste 4.5:1 (seção 16.2)']
+  publicado booleano [not null, default: false, note: 'Cartão nasce despublicado']
+  permitir_indexacao booleano [not null, default: false, note: 'Quando falso, a página emite noindex, nofollow (seção 20.3)']
+  mensagem_whatsapp texto [note: 'Já vem digitada ao abrir o WhatsApp. Nula = usa o padrão da seção 15. Até 120']
+  atualizado_em timestamp [not null]
+
+  Note: 'Um por conta (princípio 0.5). Lido inteiro em uma leitura, porque a página pública não tolera duas viagens ao banco.'
+
+  // Publicar exige nome_exibicao preenchido E ao menos 1 link (regra 11.4)
+  // Exclusão: HARD DELETE junto com a conta
+}
+
+// ----------------------------------------------------------------------------
+// links_cartao — estrutura de cada item do array cartoes.links.
+// NÃO é coleção: está embutida no documento do cartão (seção 7.5.1).
+// ----------------------------------------------------------------------------
+Table links_cartao {
+  id texto [pk, note: 'Identificador local do item, para a reordenação no cliente']
+  tipo tipo_link [not null, note: 'Determina ícone, validação e formato final da URL (regra 11.5)']
+  valor texto [not null, note: 'O dado cru: telefone em E.164, e-mail, usuário do Instagram sem @, URL completa para site']
+  rotulo texto [note: 'Nulo = usa o rótulo padrão do tipo (seção 15.3). Até 24']
+  ordem inteiro [not null, note: 'Posição na página, começando em 0']
+
+  Note: 'EMBUTIDO em cartoes.links, não é coleção própria. Teto por plano (5 ou 15); no máximo 1 do tipo whatsapp e 1 do tipo pix. Rebaixar plano NÃO apaga link (regra 11.11.6).'
+}
+
+// ----------------------------------------------------------------------------
+// visitas_diarias — contador agregado. Id: <usuario_id>_<AAAA-MM-DD>.
+// ----------------------------------------------------------------------------
+Table visitas_diarias {
+  id texto [pk, note: 'Formato <usuario_id>_<AAAA-MM-DD>, no fuso America/Sao_Paulo']
+  usuario_id texto [not null]
+  data texto [not null, note: 'AAAA-MM-DD, fuso America/Sao_Paulo (regra 11.9)']
+  total inteiro [not null, default: 0, note: 'Visitas no dia, somando todas as origens']
+  por_link inteiro [not null, default: 0, note: 'Chegou direto em /<handle>']
+  por_codigo inteiro [not null, default: 0, note: 'Chegou por /c/<id> — QR ou NFC']
+  salvou_contato inteiro [not null, default: 0, note: 'Baixou o .vcf']
+  abriu_whatsapp inteiro [not null, default: 0, note: 'Clicou no botão de WhatsApp']
+
+  Note: 'PEGADINHA 18.4.5 — NENHUM campo aqui pode identificar o visitante. Sem IP, sem user-agent, sem cookie, sem cidade. Há teste estrutural que falha se a forma deste documento mudar.'
+
+  // Agregado por dia, e não um documento por visita, porque uma linha por visita
+  // seria guardar comportamento de visitante (seção 20.2)
+  // Incremento atômico via FieldValue.increment
+  // Retenção: 400 dias (regra 11.8)
+  // Exclusão: HARD DELETE junto com a conta
+}
+
+// ----------------------------------------------------------------------------
+// acoes_admin — log de auditoria. Id automático.
+// ----------------------------------------------------------------------------
+Table acoes_admin {
+  id texto [pk, note: 'Id automático do Firestore']
+  admin_email texto [not null, note: 'Quem fez']
+  acao acao_admin [not null, note: 'O quê']
+  usuario_id_alvo texto [not null, note: 'Em qual conta']
+  detalhe texto [note: 'Contexto livre — handle anterior e novo, motivo da denúncia. Nulo quando a ação não precisa de contexto']
+  criado_em timestamp [not null, note: 'Quando']
+
+  Note: 'NUNCA É APAGADO, nem na exclusão da conta — nesse caso usuario_id_alvo passa a apontar para conta inexistente, que é o comportamento correto de um log.'
+}
+
+// ============================================================================
+// ENUMS (seção 7.7)
+// ============================================================================
+
+enum tipo_link {
+  whatsapp   [note: 'Botão principal da página, sempre — princípio 0.3. Máximo 1 por cartão']
+  telefone
+  email
+  instagram
+  linkedin
+  site
+  youtube
+  tiktok
+  facebook
+  x
+  github
+  behance
+  spotify
+  pix        [note: 'Diferencial brasileiro. Botão de copiar, não abre link. Máximo 1 por cartão']
+  endereco
+  outro
+}
+
+enum template_cartao {
+  minimalista [note: 'Padrão. Foto redonda pequena, nome grande, links em botões de largura total']
+  cartao      [note: 'Área superior imita cartão físico, proporção 85x55 mm']
+  foto        [note: 'Foto em largura inteira com nome sobreposto em degradê']
+  executivo   [note: 'Sem foto grande: monograma, serifada, muito branco']
+}
+
+enum cor_destaque {
+  azul     [note: 'Padrão']
+  verde
+  roxo
+  vermelho
+  laranja
+  rosa
+  grafite  [note: 'O mais sóbrio']
+  dourado
+}
+
+enum plano_conta {
+  gratuito      [note: 'Conta nova com EARLY_ADOPTER_ABERTO=false. 5 links, 2 templates, 2 cores, marca no rodapé']
+  early_adopter [note: 'Conta nova com EARLY_ADOPTER_ABERTO=true. NUNCA expira — é a promessa. 15 links, 4 templates, 8 cores, sem marca']
+  ilimitado     [note: 'E-mail na allowlist ILIMITADOS (lib/planos.ts), verificada a cada login. Mesmos limites do early adopter']
+  pago          [note: 'NÃO ATRIBUÍVEL NA v1 — nenhuma rota o define. Existe no enum para não exigir migração quando a cobrança chegar (seção 28.2)']
+}
+
+enum acao_admin {
+  despublicou_cartao
+  alterou_handle
+  alterou_plano      [note: 'Grava o plano anterior em detalhe. Nunca apaga link, template nem cor (regra 11.11.6)']
+  bloqueou_conta
+  desbloqueou_conta
+}
+
+// ============================================================================
+// RELACIONAMENTOS (seção 7.1)
+// ============================================================================
+
+// Um usuário tem exatamente um handle reservado (depois da escolha)
+Ref: handles.usuario_id - usuarios.id
+
+// Um usuário tem exatamente um id permanente
+Ref: ids_permanentes.usuario_id - usuarios.id
+
+// Um usuário tem exatamente um cartão; não existe cartão sem usuário
+Ref: cartoes.usuario_id - usuarios.id
+
+// Um cartão tem de zero a quinze links, guardados DENTRO do próprio documento
+Ref: cartoes.links > links_cartao.id
+
+// Um usuário tem muitos registros de visitas, um por dia com ao menos uma visita
+Ref: visitas_diarias.usuario_id > usuarios.id
+
+// O log referencia a conta alvo, mas SEM integridade referencial:
+// a ação sobrevive à exclusão da conta, de propósito (seção 7.8)
+Ref: acoes_admin.usuario_id_alvo > usuarios.id
