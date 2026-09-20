@@ -1973,13 +1973,46 @@ Medido em 4G simulado, aparelho mediano, cache frio:
 |---|---|---|
 | LCP | **< 1,5 s** | É o momento do cenário 2.2 |
 | Primeiro byte | < 400 ms | |
-| JavaScript entregue | **< 40 KB** comprimido | O conteúdo não depende dele (princípio 0.2) |
+| JavaScript entregue | **< 40 KB** comprimido — **alvo NÃO atingido, ver 17.1.1** | O conteúdo não depende dele (princípio 0.2) |
 | Peso total, com foto | < 250 KB | |
 | Funciona com JS desativado | **sim**, para todo o conteúdo e todos os links | |
 
 O QR é SVG gerado no servidor; o cliente não baixa biblioteca de QR. A foto é
 servida já no tamanho final — não há redimensionamento no cliente na página
 pública.
+
+#### 17.1.1 O alvo de 40 KB de JavaScript não foi atingido
+
+**Medido em 20/09/2026, com build de produção**, em `/alexandresiqueira`:
+
+| Métrica | Medido | Alvo | |
+|---|---|---|---|
+| LCP | **460 ms** | < 1,5 s | atende |
+| Primeiro byte | **258 ms** | < 400 ms | atende |
+| HTML transferido | **7 KB** | — | |
+| Funciona sem JavaScript | **sim** | sim | atende |
+| **JavaScript transferido** | **105 KB** | < 40 KB | **não atende** |
+
+*(LCP e TTFB medidos em localhost, sem latência de rede — servem para comparar
+entre versões, não como número de campo.)*
+
+**A causa não é o nosso código.** A página entrega 707 B próprios; os 105 KB são
+o runtime do React e do Next, que o App Router envia em toda página. Não há o que
+cortar: o alvo de 40 KB é incompatível com a arquitetura escolhida na seção 4.2.
+
+**Duas saídas, e a escolha é de produto:**
+
+| Saída | O que custa | O que ganha |
+|---|---|---|
+| **A — revisar o alvo** para 110 KB, mantendo LCP e "funciona sem JS" como os critérios que valem | Nada. O JavaScript é carregado com `defer` e não bloqueia a primeira pintura — o LCP de 460 ms é prova disso | Nada muda |
+| **B — servir o cartão público sem React**, por rota que devolve HTML montado à mão, com um script mínimo embutido para copiar a chave PIX | Perde componente React no cartão; a pré-visualização do painel passa a compartilhar marcação de outro jeito | JavaScript perto de zero, e a página mais rápida que a arquitetura permite |
+
+**Recomendação: A**, por ora. O princípio 0.2 pede que *o conteúdo* não dependa de
+JavaScript — e isso já é verdade. O número de 40 KB era um meio, não o fim, e o
+fim está sendo atingido. **B vale a conversa se a métrica 21.1.2 mostrar gente
+abandonando a página**, aí sim com dado em vez de intuição.
+
+*Pendente de decisão: pergunta aberta 25.11.*
 
 ### 17.2 Desempenho e forma do painel
 
@@ -2500,6 +2533,7 @@ aparelho a coisa foi realmente testada.
 | 25.6 | Termos de uso e política de privacidade: texto próprio ou reaproveitar a estrutura do ViraPágina? | Alexandre | antes do primeiro deploy | Bloqueia a publicação |
 | ~~25.9~~ | ~~Manter o `dourado` ocre ou trocar por teal?~~ **RESPONDIDA em 20/09/2026: mantém o ocre** `#A16207`. A paleta fica com as oito cores de 16.2, sem teal | — | — | Decidida |
 | ~~25.10~~ | ~~O corte de 64 caracteres em propriedade de evento foi escolhido sem consulta.~~ **RESPONDIDA em 20/09/2026: ratificado.** Virou a regra 11.13 | — | — | Decidida |
+| 25.11 | **O alvo de 40 KB de JavaScript da seção 17.1 não é atingível** com Next.js: a página entrega 707 B próprios e o runtime do React traz 105 KB. LCP (460 ms), primeiro byte (258 ms) e "funciona sem JS" atendem. Revisar o alvo para 110 KB (saída A), ou servir o cartão público sem React (saída B)? Detalhes e medições em 17.1.1 | Alexandre | antes do release | Nenhum agora — o produto funciona. Mas B fica mais caro a cada tela nova que compartilhar componente com o cartão |
 | 25.7 | Existe limite de contas por pessoa? Hoje, um e-mail = uma conta, e nada impede alguém de criar dez | Alexandre | quando virar problema | Sem impacto imediato |
 | ~~25.8~~ | ~~O título da home descreve o artefato em vez da transformação.~~ **RESPONDIDA em 20/09/2026:** o título é `Seu contato na agenda de quem você acabou de conhecer.` O subtítulo foi encurtado junto, porque `quem recebe salva seu contato` virou redundante com o título novo. Ver 15.4 | — | — | Decidida |
 

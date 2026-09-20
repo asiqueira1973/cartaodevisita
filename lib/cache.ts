@@ -11,9 +11,26 @@
 
 import { unstable_cache } from 'next/cache'
 import { buscarCartaoPorHandle } from '@/lib/firebase/firestore'
+import type { Cartao, Usuario } from '@/types/dominio'
 
 /** Janela de revalidação, em segundos (assunção 24.17). */
 export const SEGUNDOS_DE_CACHE = 60
+
+/**
+ * Revive as datas depois do cache.
+ *
+ * O cache do Next SERIALIZA o resultado em JSON, e nisso todo `Date` vira
+ * string ISO. O tipo continua dizendo `Date`, então o erro só aparece na
+ * primeira chamada de método — `atualizado_em.toISOString is not a function`,
+ * dentro da geração do .vcf, e SÓ quando o cache está quente. Em
+ * desenvolvimento, com o cache frio, tudo parecia certo.
+ *
+ * Reviver aqui, na fronteira, é melhor do que fazer cada consumidor aceitar
+ * `Date | string`: isso espalharia o problema pelo código inteiro.
+ */
+function paraData(valor: Date | string): Date {
+  return valor instanceof Date ? valor : new Date(valor)
+}
 
 /**
  * Lê o cartão publicado pelo endereço, com cache de 60 segundos.
@@ -22,9 +39,23 @@ export const SEGUNDOS_DE_CACHE = 60
  * 60 segundos para aparecer na página pública. Quem está editando vê a
  * pré-visualização ao vivo no painel, então o atraso não atrapalha quem importa.
  */
-export const lerCartaoPublicado = (handle: string) =>
-  unstable_cache(
+export async function lerCartaoPublicado(
+  handle: string,
+): Promise<{ cartao: Cartao; usuario: Usuario } | null> {
+  const achado = await unstable_cache(
     () => buscarCartaoPorHandle(handle),
     ['cartao-publicado', handle],
     { revalidate: SEGUNDOS_DE_CACHE, tags: [`cartao:${handle}`] },
   )()
+
+  if (!achado) return null
+
+  return {
+    cartao: { ...achado.cartao, atualizado_em: paraData(achado.cartao.atualizado_em) },
+    usuario: {
+      ...achado.usuario,
+      criado_em: paraData(achado.usuario.criado_em),
+      ultimo_acesso_em: paraData(achado.usuario.ultimo_acesso_em),
+    },
+  }
+}

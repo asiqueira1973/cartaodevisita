@@ -17,6 +17,7 @@ import { lerCartaoPublicado } from '@/lib/cache'
 import { buscarCartaoDoDono, registrarVisita } from '@/lib/firebase/firestore'
 import { limitesDoPlano } from '@/lib/planos'
 import { CardPublico } from '@/components/card/CardPublico'
+import { qrComoSvg } from '@/lib/qr'
 import { TEXTOS } from '@/lib/copy'
 
 interface Props {
@@ -79,7 +80,9 @@ export default async function CartaoPublicoPage({ params, searchParams }: Props)
         <div className="sticky top-0 z-10 bg-tinta px-5 py-2.5 text-center text-[13px] font-semibold text-white">
           {TEXTOS.previaTarja}
         </div>
-        <CardPublico cartao={previa.cartao} comMarca={previa.comMarca} />
+        {/* A pré-visualização não mostra QR: o cartão ainda não está no ar, e
+            o código levaria a um 404 (spec 13.2). */}
+        <CardPublico cartao={previa.cartao} comMarca={previa.comMarca} handle={handle} qrSvg={null} />
       </>
     )
   }
@@ -95,7 +98,19 @@ export default async function CartaoPublicoPage({ params, searchParams }: Props)
     await registrarVisita(usuario.id, qr !== undefined ? 'por_codigo' : 'por_link')
   }
 
-  return <CardPublico cartao={cartao} comMarca={limitesDoPlano(usuario.plano).marcaNoRodape} />
+  const urlBase = process.env.NEXT_PUBLIC_URL_BASE ?? 'https://cartaodevisita.app.br'
+  // Gerado no servidor: a página pública não carrega biblioteca de QR no
+  // cliente (critério 8.5.2 e alvo de 40 KB da seção 17.1).
+  const qrSvg = usuario.id_permanente ? await qrComoSvg(usuario.id_permanente, urlBase) : null
+
+  return (
+    <CardPublico
+      cartao={cartao}
+      comMarca={limitesDoPlano(usuario.plano).marcaNoRodape}
+      handle={handle}
+      qrSvg={qrSvg}
+    />
+  )
 }
 
 /**

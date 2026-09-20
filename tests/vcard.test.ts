@@ -112,3 +112,24 @@ describe('nome do arquivo (spec 14.3)', () => {
     expect(vcardFileName('...', 'danielasaboya')).toBe('danielasaboya.vcf')
   })
 })
+
+describe('REGRESSÃO — data vinda do cache chega como string', () => {
+  it('buildVCard falha alto se receber string em vez de Date', () => {
+    // O cache do Next serializa em JSON e transforma Date em string ISO. O
+    // conserto é reviver na fronteira (lib/cache.ts), e este teste existe para
+    // que ninguém "resolva" fazendo buildVCard aceitar os dois tipos — isso
+    // espalharia o problema pelo código inteiro em vez de consertá-lo.
+    const comStringNoLugarDeData = {
+      ...cartaoBase,
+      atualizado_em: '2026-09-20T12:00:00.000Z' as unknown as Date,
+    }
+    expect(() => buildVCard({
+      cartao: comStringNoLugarDeData, handle: 'x',
+      urlBase: 'https://exemplo.com', fotoBase64: null,
+    })).toThrow(TypeError)
+  })
+
+  it('com Date de verdade, o REV sai em ISO sem milissegundos', () => {
+    expect(gerar()).toContain('REV:2026-09-20T12:00:00Z')
+  })
+})
