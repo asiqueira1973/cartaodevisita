@@ -500,11 +500,18 @@ testada, porque nenhuma suíte prova isto.
 
 | Verificação | Resultado | Aparelho |
 |---|---|---|
-| QR lido pela câmera nativa | **funcionou** — 20/09/2026 | *(a registrar)* |
-| `.vcf` abriu e salvou o contato | **funcionou** — 20/09/2026 | *(a registrar)* |
-| Envio do link por WhatsApp | **funcionou** — 20/09/2026 | *(a registrar)* |
-| Etiqueta NTAG215 gravada e lida | não testado | — |
+| QR lido pela câmera nativa | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
+| `.vcf` abriu e salvou o contato | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
+| Envio do link por WhatsApp | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
+| Etiqueta NTAG215 gravada e lida | **previsto para a semana de 22/09/2026** — etiquetas e cartões já comprados | iPhone 13 mini |
 
-> **Pendente:** o modelo e a versão do sistema dos aparelhos usados no teste de
-> 20/09/2026. Sem isso, daqui a um ano ninguém sabe em que iOS ou Android o
-> `.vcf` foi provado.
+**O que o iPhone 13 mini prova e o que não prova.** Ele é iPhone XS ou mais
+novo, então a leitura de etiqueta NFC em segundo plano funciona nele (regra
+11.6) — o teste de NFC que vem tem chance real de passar. O que ele **não**
+prova é o lado Android: o `.vcf` é lido por implementações diferentes lá, e é
+justamente onde a versão 3.0 foi escolhida em vez da 4.0 (spec 14.1). **Um
+teste em Android continua pendente**, e é o que fecharia o critério 8.6.7.
+
+> **Ainda falta a versão do iOS.** O modelo já ajuda, mas se um dia alguém
+> relatar que o contato não salva, a pergunta será *em que versão isso já
+> funcionou* — e a resposta hoje é "num iPhone 13 mini, versão não registrada".

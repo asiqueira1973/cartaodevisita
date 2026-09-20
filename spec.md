@@ -2650,7 +2650,17 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 #    ↑ tem de vir VAZIO
 ```
 
-- [ ] Os cinco comandos rodados, com o resultado esperado.
+- [x] Os cinco comandos rodados — **20/09/2026**. Resultado: 1, 3 e 5 vazios; 4 com as cinco chamadas passando `id_permanente` e nenhuma passando handle.
+
+> **Os greys 2 e 5 casam com COMENTÁRIO, e isso é esperado.** O `403` aparece
+> num comentário que explica por que a rota devolve 404, e as palavras `IP` e
+> `user-agent` aparecem no comentário que declara que elas não são gravadas.
+> Um grep cru não distingue comentário de código.
+>
+> **A barreira de verdade é `tests/estrutura.test.ts`**, que tira comentários e
+> imports antes de analisar, e que roda em `npm test`. Os comandos abaixo são
+> segunda opinião, não a checagem principal — foi justamente o falso positivo
+> por comentário que quase deixou passar uma rota sem guarda.
 
 ### 26.3 Qualidade de código
 
@@ -2672,9 +2682,11 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 
 ### 26.5 Verificação manual em aparelho (seção 22.2)
 
-- [x] QR lido pela câmera nativa — **20/09/2026**, aparelho a registrar.
-- [x] `.vcf` aberto e o contato salvo de verdade — **20/09/2026**, aparelho a registrar.
-- [x] Envio do link por WhatsApp — **20/09/2026**.
+- [x] QR lido pela câmera nativa — **20/09/2026, iPhone 13 mini**.
+- [x] `.vcf` aberto e o contato salvo de verdade — **20/09/2026, iPhone 13 mini**.
+- [x] Envio do link por WhatsApp — **20/09/2026, iPhone 13 mini**.
+- [ ] **Os três acima em um Android.** O `.vcf` é lido por implementações diferentes lá, e é onde a escolha da versão 3.0 em vez da 4.0 (14.1) se justifica ou não.
+- [ ] Etiqueta **NTAG215** gravada e lida — previsto para a semana de 22/09/2026.
 - [ ] Etiqueta **NTAG215** gravada e lida num iPhone e num Android.
 - [ ] Modelos e versões registrados em `DOCUMENTACAO-TECNICA.md`.
 
