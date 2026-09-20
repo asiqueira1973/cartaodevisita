@@ -71,9 +71,24 @@ lib/copy.ts         toda a copy da seção 15
 types/dominio.ts    tipos que espelham a seção 7
 ```
 
-**Falta tudo o que depende de credencial externa**: `lib/firebase/*`, `lib/auth.ts`,
-`lib/guards.ts`, `lib/qr.ts`, as rotas, as telas e o `DOCUMENTACAO-TECNICA.md`.
-Ver `spec.md` seção 8 para a ordem, e seção 25 para o que está travado.
+```
+lib/firebase/admin.ts      init do Admin SDK, com desvio para o emulador
+lib/firebase/firestore.ts  O ÚNICO que conhece as coleções (spec 7.11)
+lib/auth.ts                Auth.js v5, SEM Firebase — roda no Edge (spec 6.1)
+lib/guards.ts              requireDono e requireAdminPlataforma (spec 6.5)
+middleware.ts              barreira de /conta/* (critério 8.1.1)
+firestore.rules            nega TODO acesso do cliente (spec 6.6)
+storage.rules              idem
+tests/estrutura.test.ts    guarda as cinco pegadinhas por varredura de arquivo
+```
+
+**Falta**: `lib/firebase/storage.ts`, `lib/qr.ts`, todas as rotas de `app/api/*`,
+todas as telas e o `DOCUMENTACAO-TECNICA.md`. Ver `spec.md` seção 8 para a ordem,
+e seção 25 para o que ainda está travado.
+
+**Para rodar de verdade** falta preencher `.env.local`: `AUTH_SECRET`,
+`AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `FIREBASE_CLIENT_EMAIL` e
+`FIREBASE_PRIVATE_KEY`. O projeto e o bucket já estão no `.env.example`.
 
 ---
 

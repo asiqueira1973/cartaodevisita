@@ -1,0 +1,15 @@
+rules_version = '2';
+
+// Estas regras NÃO são a autorização — elas são a garantia de que não existe uma
+// segunda porta (pegadinha 18.4.3 e spec 6.6).
+//
+// Toda leitura e escrita acontece no servidor, pelo Admin SDK, que ignora estas
+// regras por definição. O cliente é negado em tudo: se algum dia uma chamada ao
+// Firestore vazar para o navegador, ela falha aqui em vez de expor dado.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

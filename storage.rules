@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// Mesmo desenho do firestore.rules: o cliente nunca fala com o Storage.
+// As fotos são enviadas por rota de servidor, que valida os magic bytes antes
+// de gravar (spec 20.5), e servidas por URL não adivinhável.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

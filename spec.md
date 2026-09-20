@@ -281,7 +281,8 @@ infraestrutura, **siga o que o ViraPágina faz.**
 | QR code | `qrcode` (npm), gerando **SVG no servidor** | 1.5.x | SVG no servidor não custa JavaScript no cliente (princípio 0.2) e escala sem perda para o download em PNG. |
 | Testes | Vitest | 3.x | Mesmo do ViraPágina, incluindo a suíte contra o emulador. |
 | Hospedagem | Vercel | — | Mesmo do ViraPágina. |
-| Domínio | `cartaodevisita.app.br` | — | A definir (seção 25). |
+| Domínio | `cartaodevisita.app.br` | — | Registrado; apontamento pendente (pergunta 25.1). |
+| Projeto Firebase | `cartao-de-visita-60325` | — | Bucket: `cartao-de-visita-60325.firebasestorage.app`. Plano Blaze exigido pelo Storage (seção 4.6). |
 
 **Premissa a validar:** que o plano gratuito do Firestore/Storage comporta o
 volume previsto na seção 17.4. A validar quando passar de 500 contas.
@@ -1656,7 +1657,8 @@ que é a posição de maior leitura.
 | Excluir conta, aviso | `Apaga seu cartão, sua foto e seus dados. Não dá para desfazer, e seu endereço fica livre para outra pessoa.` |
 | Mensagem padrão do WhatsApp | `Olá! Vi seu cartão e gostaria de falar com você.` |
 | 404 | `Não encontrei esse cartão.` + `Ele pode ter sido removido ou o endereço mudou.` |
-| Conta bloqueada, painel | `Seu cartão está fora do ar por violação dos termos de uso. Escreva para <e-mail de suporte>.` |
+| Conta bloqueada, painel | `Seu cartão está fora do ar por violação dos termos de uso. Escreva para alexandre@dablab.com.br.` |
+| Rodapé da home | `Cartão de Visita — Dab Lab` · `Termos` · `Privacidade` · `alexandre@dablab.com.br` |
 
 ### 15.5 Instruções de NFC — `/conta/compartilhar`
 
@@ -2010,6 +2012,13 @@ Cada uma tem um comando de verificação na seção 26.
 
 1. **Toda rota `/api/conta/*` chama `requireDono()` na primeira linha; toda rota `/api/admin/*` chama `requireAdminPlataforma()`.** Sem banco relacional não há RLS por baixo — essa linha é a única coisa entre um estranho e os dados de todo mundo. **Há teste que falha se uma rota tocar o Firestore ou o Storage antes de autorizar. Não desative esse teste.**
 2. **Cartão despublicado, conta bloqueada, handle inexistente e rota de admin para não-admin devolvem `404`, nunca `403`.** "Existe, mas não é seu" confirma a existência. Há teste comparando as respostas byte a byte.
+
+   **Exceção declarada, e a única:** uma conta bloqueada por moderação recebe
+   `403` nas **próprias** rotas `/api/conta/*` (`lib/guards.ts`). Isso não
+   confirma recurso alheio — a pessoa já sabe que a conta é dela —, e 403 é a
+   resposta HTTP correta para "autenticado, mas proibido". O teste estrutural
+   permite esse 403 **só em `lib/guards.ts`**; qualquer outro no projeto quebra
+   a suíte.
 3. **Nenhuma chamada ao Firestore ou ao Storage acontece no navegador.** Sempre em rota de servidor ou componente de servidor. As regras de segurança negam todo acesso do cliente — elas não são a autorização, são a garantia de que não existe segunda porta.
 4. **O QR e a etiqueta NFC codificam `/c/<id_permanente>`, nunca `/<handle>`.** É o princípio 0.4. Há teste que troca o handle e verifica que o id permanente continua levando ao cartão.
 5. **`visitas_diarias` não ganha campo que identifique visitante.** Sem IP, sem user-agent, sem cookie, sem cidade. Há teste estrutural que falha se a forma do documento mudar sem o teste ser atualizado junto.
@@ -2382,13 +2391,14 @@ aparelho a coisa foi realmente testada.
 
 | # | Pergunta | Quem decide | Até quando | Impacto se ficar em aberto |
 |---|---|---|---|---|
-| 25.1 | Confirmado o registro de `cartaodevisita.app.br`? Já está apontado para a Vercel? | Alexandre | antes do primeiro deploy | Bloqueia só a publicação, não o desenvolvimento |
-| 25.2 | Qual o **e-mail de suporte e de denúncia** que vai nos termos e na tela de conta bloqueada? | Alexandre | antes do épico 8.9 | A copy de 15.4 tem um espaço a preencher |
+| 25.1 | Domínio `cartaodevisita.app.br` já apontado para a Vercel? **Parcial em 20/09/2026:** o projeto do Firebase existe (`cartao-de-visita-60325`, bucket `cartao-de-visita-60325.firebasestorage.app`); falta o apontamento do domínio | Alexandre | antes do primeiro deploy | Bloqueia só a publicação, não o desenvolvimento |
+| ~~25.2~~ | ~~Qual o e-mail de suporte e de denúncia?~~ **RESPONDIDA em 20/09/2026:** `alexandre@dablab.com.br`, o mesmo do ViraPágina | — | — | Decidida |
 | 25.3 | Entra **link mágico por e-mail** além do Google? | Alexandre | quando aparecer o primeiro pedido real | Nenhum — o desenho está em 28.8 e é aditivo |
 | 25.4 | Os **oito valores de cor** e a família tipográfica | etapa de design (seção 27) | antes do épico 8.2 | Bloqueia a aparência, não a lógica. Implemente com valores provisórios e substitua |
 | ~~25.5~~ | ~~O cartão leva **marca do produto** no rodapé da página pública?~~ **RESPONDIDA em 20/09/2026: sim.** A marca aparece no rodapé do cartão de conta `gratuito`, e some nos demais planos. Razão declarada pelo Alexandre: *"senão nunca teremos razão para vender"*. Ver 11.11.2 | — | — | Decidida |
 | 25.6 | Termos de uso e política de privacidade: texto próprio ou reaproveitar a estrutura do ViraPágina? | Alexandre | antes do primeiro deploy | Bloqueia a publicação |
-| 25.9 | O `dourado` da paleta é um ocre, porque dourado metálico não passa em contraste (16.2). Mantém ou troca por **teal**? | Alexandre | antes do épico 8.2 | Nenhum — é um valor em `tokens`. Mas decidir antes evita refazer a tela de Aparência |
+| ~~25.9~~ | ~~Manter o `dourado` ocre ou trocar por teal?~~ **RESPONDIDA em 20/09/2026: mantém o ocre** `#A16207`. A paleta fica com as oito cores de 16.2, sem teal | — | — | Decidida |
+| 25.10 | **Número inventado, precisa de ratificação.** A regra 21.3.1 (item 5) diz que propriedade de evento só aceita número, booleano ou valor de enum, mas não deu limite de tamanho para string. `sanitizarPropriedades` corta em **64 caracteres** — valor de enum cabe folgado, bio e endereço não cabem. Foi escolhido sem consulta, contra a regra de não inventar número (seção 11). Ratificar e mover para a seção 11, ou trocar o valor | Alexandre | antes do épico 8.10 | Nenhum — é uma constante em `lib/telemetria.ts` |
 | 25.7 | Existe limite de contas por pessoa? Hoje, um e-mail = uma conta, e nada impede alguém de criar dez | Alexandre | quando virar problema | Sem impacto imediato |
 | ~~25.8~~ | ~~O título da home descreve o artefato em vez da transformação.~~ **RESPONDIDA em 20/09/2026:** o título é `Seu contato na agenda de quem você acabou de conhecer.` O subtítulo foi encurtado junto, porque `quem recebe salva seu contato` virou redundante com o título novo. Ver 15.4 | — | — | Decidida |
 
@@ -2462,7 +2472,8 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 ### 26.6 Privacidade e segurança
 
 - [ ] Nenhum cookie e nenhum script de terceiro na página pública.
-- [ ] `grep -rn "visaodeproduto\|registrarEvento" app/\(public\)/ app/c/` vem **vazio** — a página pública não fala com o Visão de Produto (regra 21.3.1).
+- [ ] `npm test` cobre as cinco pegadinhas por teste estrutural (`tests/estrutura.test.ts`), o que torna os greys de 26.2 uma conferência de segunda opinião, não a barreira principal.
+- [ ] A página pública não fala com o Visão de Produto (regra 21.3.1).
 - [ ] `VISAO_API_KEY` configurada na Vercel e **ausente do repositório**.
 - [ ] Verificado que, sem `VISAO_API_KEY`, o app funciona sem erro e sem aviso.
 - [ ] Nenhuma propriedade de evento carrega conteúdo do cartão (regra 21.3.1, item 5).
