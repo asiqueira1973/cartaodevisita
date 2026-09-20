@@ -8,17 +8,9 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { buscarCartaoDoDono, garantirUsuario } from '@/lib/firebase/firestore'
 import { limitesDoPlano } from '@/lib/planos'
-import { CORES } from '@/lib/cores'
 import { EditorComPrevia } from '@/components/account/EditorComPrevia'
 
 export const metadata = { title: 'Meu cartão · Cartão de Visita' }
-
-const NOME_DO_TEMPLATE = {
-  minimalista: 'minimalista',
-  cartao: 'cartão',
-  foto: 'foto',
-  executivo: 'executivo',
-} as const
 
 export default async function MeuCartaoPage() {
   const sessao = await auth()
@@ -54,8 +46,6 @@ export default async function MeuCartaoPage() {
       <EditorComPrevia
         cartaoInicial={cartao}
         comMarca={limitesDoPlano(usuario.plano).marcaNoRodape}
-        template={NOME_DO_TEMPLATE[cartao.template]}
-        cor={CORES[cartao.cor_destaque].rotulo.toLowerCase()}
       />
     </div>
   )

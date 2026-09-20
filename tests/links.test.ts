@@ -66,3 +66,50 @@ describe('montagem da URL final (regra 11.5)', () => {
     expect(buildLinkUrl('pix', 'daniela@exemplo.com.br')).toBeNull()
   })
 })
+
+// ---------------------------------------------------------------------------
+
+import { renumerar, validarListaDeLinks } from '@/lib/links'
+import type { LinkCartao } from '@/types/dominio'
+
+const link = (tipo: LinkCartao['tipo'], i = 0): LinkCartao =>
+  ({ id: `l${i}`, tipo, valor: 'x', rotulo: null, ordem: i })
+
+describe('validação da lista (regra 11.4)', () => {
+  it('aceita a lista vazia e o teto do plano', () => {
+    expect(validarListaDeLinks([], 5)).toBeNull()
+    expect(validarListaDeLinks(Array.from({ length: 5 }, (_, i) => link('site', i)), 5)).toBeNull()
+  })
+  it('recusa o 6º link no plano gratuito', () => {
+    const seis = Array.from({ length: 6 }, (_, i) => link('site', i))
+    expect(validarListaDeLinks(seis, 5)).toBe('acima_do_plano')
+  })
+  it('recusa o 16º em QUALQUER plano — o teto absoluto vem primeiro', () => {
+    const dezesseis = Array.from({ length: 16 }, (_, i) => link('site', i))
+    expect(validarListaDeLinks(dezesseis, 15)).toBe('acima_do_teto')
+    // Mesmo com um teto de plano absurdo, o absoluto continua valendo.
+    expect(validarListaDeLinks(dezesseis, 999)).toBe('acima_do_teto')
+  })
+  it('recusa dois WhatsApp e dois PIX, com erros distintos', () => {
+    expect(validarListaDeLinks([link('whatsapp', 0), link('whatsapp', 1)], 15)).toBe('whatsapp_duplicado')
+    expect(validarListaDeLinks([link('pix', 0), link('pix', 1)], 15)).toBe('pix_duplicado')
+  })
+  it('aceita vários links de tipos que não são únicos', () => {
+    expect(validarListaDeLinks([link('site', 0), link('site', 1), link('outro', 2)], 15)).toBeNull()
+  })
+  it('recusa tipo desconhecido e rótulo acima de 24', () => {
+    expect(validarListaDeLinks([{ ...link('site'), tipo: 'orkut' as never }], 15)).toBe('tipo_invalido')
+    expect(validarListaDeLinks([{ ...link('site'), rotulo: 'a'.repeat(25) }], 15)).toBe('rotulo_longo')
+  })
+})
+
+describe('renumeração (critério 8.3.5)', () => {
+  it('a ordem gravada segue a posição no array, não o campo que veio', () => {
+    const bagunçados: LinkCartao[] = [
+      { ...link('site', 0), ordem: 9 },
+      { ...link('email', 1), ordem: 3 },
+      { ...link('pix', 2), ordem: 7 },
+    ]
+    expect(renumerar(bagunçados).map((l) => l.ordem)).toEqual([0, 1, 2])
+  })
+})

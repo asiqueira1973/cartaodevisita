@@ -4,7 +4,9 @@
 // que vai para `cartoes.links[].valor`; `buildLinkUrl` produz o href da página
 // pública. As duas são a implementação literal da tabela 11.5.
 
-import type { TipoLink } from '@/types/dominio'
+import type { LinkCartao, TipoLink } from '@/types/dominio'
+import { LIMITES } from '@/lib/cartao'
+import { TETO_ABSOLUTO_DE_LINKS } from '@/lib/planos'
 
 /** Rótulos padrão, usados quando `rotulo` é nulo (spec 15.3). */
 export const ROTULOS_PADRAO: Record<TipoLink, string> = {
@@ -169,4 +171,62 @@ export function buildLinkUrl(
     case 'pix': return null
     default: return valor
   }
+}
+
+/** Todos os tipos aceitos, na ordem em que aparecem no seletor (spec 7.7). */
+export const TIPOS: readonly TipoLink[] = [
+  'whatsapp', 'telefone', 'email', 'instagram', 'linkedin', 'site',
+  'youtube', 'tiktok', 'facebook', 'x', 'github', 'behance',
+  'spotify', 'pix', 'endereco', 'outro',
+]
+
+export type ErroDeLista =
+  | 'whatsapp_duplicado'
+  | 'pix_duplicado'
+  | 'acima_do_plano'
+  | 'acima_do_teto'
+  | 'tipo_invalido'
+  | 'rotulo_longo'
+
+/**
+ * Valida a lista INTEIRA de links (regra 11.4 e 11.11.2).
+ *
+ * A validação é da lista e não de cada item porque as regras que importam são
+ * sobre o conjunto: quantos cabem, e quais tipos só podem aparecer uma vez.
+ * Por isso a rota é um PUT da lista toda (spec 13.1) e não um POST por item.
+ *
+ * Recebe os links e o teto do plano. Devolve `null` quando está válida.
+ */
+export function validarListaDeLinks(
+  links: LinkCartao[],
+  tetoDoPlano: number,
+): ErroDeLista | null {
+  // O teto absoluto vem primeiro: nenhum plano passa de 15 (regra 11.4), e
+  // confundir os dois limites daria a mensagem errada para a pessoa.
+  if (links.length > TETO_ABSOLUTO_DE_LINKS) return 'acima_do_teto'
+  if (links.length > tetoDoPlano) return 'acima_do_plano'
+
+  for (const link of links) {
+    if (!TIPOS.includes(link.tipo)) return 'tipo_invalido'
+    if (link.rotulo !== null && link.rotulo.length > LIMITES.rotulo) return 'rotulo_longo'
+  }
+
+  for (const tipo of TIPOS_UNICOS) {
+    if (links.filter((l) => l.tipo === tipo).length > 1) {
+      return tipo === 'whatsapp' ? 'whatsapp_duplicado' : 'pix_duplicado'
+    }
+  }
+
+  return null
+}
+
+/**
+ * Renumera `ordem` a partir de 0, na ordem em que os itens estão no array
+ * (critério 8.3.5).
+ *
+ * A ordem gravada sempre reflete a posição no array — o cliente manda a lista
+ * já reordenada, e o servidor não confia no campo `ordem` que veio.
+ */
+export function renumerar(links: LinkCartao[]): LinkCartao[] {
+  return links.map((link, indice) => ({ ...link, ordem: indice }))
 }
