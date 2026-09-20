@@ -403,6 +403,87 @@ export async function excluirConta(usuarioId: string): Promise<void> {
   await loteVisitas.commit()
 }
 
+/** Uma linha da listagem do admin (spec 10.3). */
+export interface ContaNaListagem {
+  usuario: Usuario
+  links: number
+  publicado: boolean
+  visitasNoMes: number
+}
+
+/**
+ * Lista as contas para o painel da plataforma (critério 8.9.2).
+ *
+ * Ordena por criação decrescente — o admin quase sempre quer ver quem chegou
+ * agora, não quem chegou primeiro.
+ *
+ * As visitas são somadas por conta, uma consulta por linha. É caro em teoria e
+ * irrelevante na prática: esta tela é usada por uma pessoa, algumas vezes por
+ * semana, com 50 linhas por página.
+ */
+export async function listarContas(limite = 50): Promise<ContaNaListagem[]> {
+  const snap = await db().collection(USUARIOS).orderBy('criado_em', 'desc').limit(limite).get()
+
+  return Promise.all(
+    snap.docs.map(async (doc) => {
+      const usuario = montarUsuario(doc.id, doc.data())
+      const [snapCartao, visitas] = await Promise.all([
+        db().collection(CARTOES).doc(doc.id).get(),
+        visitasRecentes(doc.id, 30),
+      ])
+      const cartao = snapCartao.exists ? montarCartao(doc.id, snapCartao.data()!) : null
+      return {
+        usuario,
+        links: cartao?.links.length ?? 0,
+        publicado: cartao?.publicado ?? false,
+        visitasNoMes: visitas.reduce((s, v) => s + (v.total ?? 0), 0),
+      }
+    }),
+  )
+}
+
+/** Uma conta com tudo que a tela de detalhe do admin precisa (spec 10.3). */
+export async function buscarContaParaAdmin(usuarioId: string): Promise<{
+  usuario: Usuario
+  cartao: Cartao | null
+  acoes: { id: string; admin_email: string; acao: string; detalhe: string | null; criado_em: Date }[]
+} | null> {
+  const snap = await db().collection(USUARIOS).doc(usuarioId).get()
+  if (!snap.exists) return null
+
+  const [snapCartao, snapAcoes] = await Promise.all([
+    db().collection(CARTOES).doc(usuarioId).get(),
+    db().collection(ACOES_ADMIN).where('usuario_id_alvo', '==', usuarioId).get(),
+  ])
+
+  return {
+    usuario: montarUsuario(usuarioId, snap.data()!),
+    cartao: snapCartao.exists ? montarCartao(usuarioId, snapCartao.data()!) : null,
+    // Ordenado em memória: ordenar no Firestore com o filtro por usuario_id
+    // exigiria índice composto, e a pegadinha já nos custou uma tela quebrada.
+    acoes: snapAcoes.docs
+      .map((d) => ({
+        id: d.id,
+        admin_email: d.data().admin_email,
+        acao: d.data().acao,
+        detalhe: d.data().detalhe ?? null,
+        criado_em: paraData(d.data().criado_em),
+      }))
+      .sort((a, b) => b.criado_em.getTime() - a.criado_em.getTime()),
+  }
+}
+
+/** Bloqueia ou desbloqueia uma conta (critério 8.9.5). */
+export async function definirBloqueio(usuarioId: string, bloqueado: boolean): Promise<void> {
+  await db().collection(USUARIOS).doc(usuarioId).update({ bloqueado })
+}
+
+/** Despublica o cartão de uma conta, por ação de admin (critério 8.9.3). */
+export async function despublicarPorAdmin(usuarioId: string): Promise<void> {
+  // Só despublica — o admin nunca publica cartão alheio (regra 5.2).
+  await db().collection(CARTOES).doc(usuarioId).update({ publicado: false, atualizado_em: new Date() })
+}
+
 /** Diz se um handle já está tomado, para a verificação enquanto a pessoa digita. */
 export async function handleEstaTomado(handle: string): Promise<boolean> {
   const snap = await db().collection(HANDLES).doc(handle.trim().toLowerCase()).get()

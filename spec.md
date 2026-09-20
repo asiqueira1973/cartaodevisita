@@ -1734,6 +1734,17 @@ Usados quando `rotulo` é nulo.
 | Ajustes, botão sair | `Sair desta conta` |
 | Ajustes, botão excluir | `Excluir minha conta` |
 | Ajustes, campo de confirmação | `Digite <handle> para confirmar` |
+| Admin, título | `Contas` |
+| Admin, subtítulo | `<n> contas · <m> early adopters · <k> ilimitadas` |
+| Admin, faixa aberta | `Aberta a early adopters` + `Toda conta nova nasce com plano de early adopter, para sempre.` |
+| Admin, faixa fechada | `Fechada a early adopters` + `Conta nova nasce no plano gratuito.` |
+| Admin, ação despublicar | `Tirar do ar` |
+| Admin, ação trocar endereço | `Trocar endereço` |
+| Admin, ação bloquear | `Bloquear conta` |
+| Admin, ação desbloquear | `Desbloquear conta` |
+| Admin, ação alterar plano | `Alterar plano` |
+| Admin, campo de motivo | `Motivo` |
+| Admin, histórico | `Histórico` |
 | Painel, estado · no ar | `No ar em` |
 | Painel, estado · fora do ar | `Fora do ar` |
 | Login, título | `Entre para montar seu cartão` |

@@ -184,6 +184,31 @@ describe('spec 18.1 — nenhuma string de interface solta em componente', () => 
   })
 })
 
+describe('regra 5.2 — o admin modera, não edita conteúdo alheio', () => {
+  it('nenhuma rota de admin escreve campo de conteúdo do cartão', () => {
+    // Critério 8.9.6: não existe caminho para o admin mexer em foto, texto ou
+    // links. A ausência é proposital — mantém a responsabilidade pelo conteúdo
+    // com o dono e evita a pergunta "quem escreveu isso no meu cartão?".
+    const proibidos = ['nome_exibicao', 'cargo', 'empresa', 'bio', 'foto_url', 'foto_vcard_url', 'links']
+    const culpados: string[] = []
+
+    for (const rota of arquivos('app/api/admin')) {
+      const codigo = codigoExecutavel(ler(rota))
+      for (const campo of proibidos) {
+        if (codigo.includes(campo)) culpados.push(`${curto(rota)} menciona ${campo}`)
+      }
+    }
+    expect(culpados).toEqual([])
+  })
+
+  it('a interface do admin não tem campo de edição de conteúdo', () => {
+    const componente = codigoExecutavel(ler(join(RAIZ, 'components/platform/AcoesDaConta.tsx')))
+    for (const campo of ['nome_exibicao', 'bio', 'foto', 'links']) {
+      expect(componente, `AcoesDaConta menciona ${campo}`).not.toContain(campo)
+    }
+  })
+})
+
 describe('spec 10.2 — o menu não aponta para tela que não existe', () => {
   it('todo destino do menu lateral tem uma página', () => {
     // Encontrado em uso: Aparência e Compartilhar estavam no menu e davam 404.
