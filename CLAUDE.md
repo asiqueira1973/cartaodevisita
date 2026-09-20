@@ -158,11 +158,21 @@ As duas primeiras têm de vir **vazias**; as três últimas também.
 | Domínio final | `cartaodevisita.app.br` — adicionado na Vercel, **DNS pendente no registro.br** |
 | Projeto Firebase | `cartao-de-visita-60325` |
 
+**O deploy é automático pelo git.** `git push` na `main` publica em produção;
+pull request gera uma URL de preview. Não use `vercel --prod` no dia a dia — ele
+publica o que está no seu disco, inclusive o que você ainda não commitou, e aí
+produção deixa de corresponder ao repositório.
+
 ```bash
-vercel --prod --yes        # publica
+git push                   # publica em produção
 vercel ls cartaodevisita   # estado dos deploys
 vercel env ls              # variáveis (valores não aparecem)
+vercel --prod --yes        # só para emergência, fora do git
 ```
+
+| | |
+|---|---|
+| Repositório | <https://github.com/asiqueira1973/cartaodevisita> (privado) |
 
 **As variáveis de produção já estão configuradas na Vercel**, inclusive
 `EARLY_ADOPTER_ABERTO=true` e `VISAO_API_KEY`. Elas NÃO vêm do `.env.local` —
