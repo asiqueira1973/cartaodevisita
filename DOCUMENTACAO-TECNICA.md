@@ -529,6 +529,20 @@ testada, porque nenhuma suíte prova isto.
 | `.vcf` abriu e salvou o contato | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
 | Envio do link por WhatsApp | **funcionou** — 20/09/2026 | **iPhone 13 mini** |
 | Etiqueta NTAG215 gravada e lida | **previsto para a semana de 22/09/2026** — etiquetas e cartões já comprados | iPhone 13 mini |
+| Telemetria chegando no Visão de Produto | **funcionou** — 20/09/2026 | produção |
+
+**Telemetria confirmada em 20/09/2026.** O painel do Visão de Produto recebeu
+`endereco_escolhido`, `foto_enviada`, `links_reordenados`, `cartao_publicado` e
+`link_copiado` — o funil de ativação inteiro, do primeiro acesso ao
+compartilhamento. Fecha a verificação da seção 21.3 do spec.
+
+**Três eventos do catálogo merecem gráfico fixado, e não são os que estão lá:**
+
+| Evento | Por que ele decide produto |
+|---|---|
+| `limite_atingido` | É o momento em que a pessoa encosta no plano. É a **única evidência real de disposição a pagar**, e o que a seção 28.2 precisa antes de cobrar qualquer coisa |
+| `cartao_publicado` · propriedade `minutos_desde_criacao` | Mede a promessa da home, "monte em cinco minutos". **Se a mediana for 20, a copy está mentindo** |
+| `endereco_nfc_copiado` | **Decide a prioridade da seção 28.1.** Se quase ninguém copiar, gravar NFC não vale um app — nem a segunda etapa do roadmap |
 
 **O que o iPhone 13 mini prova e o que não prova.** Ele é iPhone XS ou mais
 novo, então a leitura de etiqueta NFC em segundo plano funciona nele (regra

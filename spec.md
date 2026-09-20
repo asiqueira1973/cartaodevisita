@@ -2697,7 +2697,8 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 - [ ] A página pública não fala com o Visão de Produto (regra 21.3.1).
 - [ ] `VISAO_API_KEY` configurada na Vercel e **ausente do repositório**.
 - [ ] Verificado que, sem `VISAO_API_KEY`, o app funciona sem erro e sem aviso.
-- [ ] Nenhuma propriedade de evento carrega conteúdo do cartão (regra 21.3.1, item 5).
+- [x] Nenhuma propriedade de evento carrega conteúdo do cartão (regra 21.3.1, item 5) — teste unitário, e `sanitizarPropriedades` descarta o que não for número, booleano ou string curta.
+- [x] **Telemetria chegando no Visão de Produto** — verificada em produção em 20/09/2026, com o funil de ativação inteiro: `endereco_escolhido`, `foto_enviada`, `links_reordenados`, `cartao_publicado` e `link_copiado`.
 - [ ] Nenhum dado de visitante em `visitas_diarias` (26.2, item 5).
 - [ ] Exclusão de conta removendo tudo o que a seção 20.4 exige, verificada no emulador.
 - [ ] Esquemas `javascript:` e `data:` rejeitados em link de texto livre.
