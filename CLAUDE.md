@@ -142,6 +142,30 @@ As duas primeiras têm de vir **vazias**; as três últimas também.
 
 ---
 
+## Produção
+
+| | |
+|---|---|
+| Projeto Vercel | `cartaodevisita` (conta `asiqueira1973`) |
+| URL de teste | <https://cartaodevisita-puce.vercel.app> |
+| Domínio final | `cartaodevisita.app.br` — adicionado na Vercel, **DNS pendente no registro.br** |
+| Projeto Firebase | `cartao-de-visita-60325` |
+
+```bash
+vercel --prod --yes        # publica
+vercel ls cartaodevisita   # estado dos deploys
+vercel env ls              # variáveis (valores não aparecem)
+```
+
+**As variáveis de produção já estão configuradas na Vercel**, inclusive
+`EARLY_ADOPTER_ABERTO=true` e `VISAO_API_KEY`. Elas NÃO vêm do `.env.local` —
+mudar lá não muda produção. Use `vercel env add <NOME> production --force`.
+
+**Toda URL nova precisa entrar no console do Google OAuth**, em dois campos
+diferentes: origem (`https://dominio`) e redirecionamento
+(`https://dominio/api/auth/callback/google`). Faltar o segundo dá
+`redirect_uri_mismatch`, e a mensagem não diz qual campo está errado.
+
 ## Uma aparência só
 
 A v1 tem **um** visual: foto redonda centralizada, nome grande, links

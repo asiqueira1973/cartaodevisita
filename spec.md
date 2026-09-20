@@ -2021,7 +2021,7 @@ Medido em 4G simulado, aparelho mediano, cache frio:
 |---|---|---|
 | LCP | **< 1,5 s** | É o momento do cenário 2.2 |
 | Primeiro byte | < 400 ms | |
-| JavaScript entregue | **< 40 KB** comprimido — **alvo NÃO atingido, ver 17.1.1** | O conteúdo não depende dele (princípio 0.2) |
+| JavaScript entregue | **< 110 KB** comprimido | Revisado em 20/09/2026 — ver 17.1.1. O que vale é o conteúdo não depender dele (princípio 0.2) |
 | Peso total, com foto | < 250 KB | |
 | Funciona com JS desativado | **sim**, para todo o conteúdo e todos os links | |
 
@@ -2048,19 +2048,27 @@ entre versões, não como número de campo.)*
 o runtime do React e do Next, que o App Router envia em toda página. Não há o que
 cortar: o alvo de 40 KB é incompatível com a arquitetura escolhida na seção 4.2.
 
-**Duas saídas, e a escolha é de produto:**
+**DECIDIDO em 20/09/2026: saída A.** O alvo da seção 17.1 passa de 40 KB para
+**110 KB**, e os critérios que valem continuam sendo LCP abaixo de 1,5 s e a
+página funcionar sem JavaScript — os dois atendidos.
+
+O raciocínio, para quem reabrir este documento daqui a um ano: o cartão aparece
+**antes** de o JavaScript carregar. Ele vem pronto do servidor, e o script baixa
+depois, em segundo plano, servindo apenas ao botão de copiar a chave PIX. Se
+nunca carregasse, a página funcionaria igual. Os 40 KB eram um meio; o fim é o
+princípio 0.2, e ele está cumprido.
+
+**As duas saídas consideradas:**
 
 | Saída | O que custa | O que ganha |
 |---|---|---|
 | **A — revisar o alvo** para 110 KB, mantendo LCP e "funciona sem JS" como os critérios que valem | Nada. O JavaScript é carregado com `defer` e não bloqueia a primeira pintura — o LCP de 460 ms é prova disso | Nada muda |
 | **B — servir o cartão público sem React**, por rota que devolve HTML montado à mão, com um script mínimo embutido para copiar a chave PIX | Perde componente React no cartão; a pré-visualização do painel passa a compartilhar marcação de outro jeito | JavaScript perto de zero, e a página mais rápida que a arquitetura permite |
 
-**Recomendação: A**, por ora. O princípio 0.2 pede que *o conteúdo* não dependa de
-JavaScript — e isso já é verdade. O número de 40 KB era um meio, não o fim, e o
-fim está sendo atingido. **B vale a conversa se a métrica 21.1.2 mostrar gente
-abandonando a página**, aí sim com dado em vez de intuição.
-
-*Pendente de decisão: pergunta aberta 25.11.*
+**B continua na mesa**, mas só com dado: se a métrica 21.1.2 mostrar gente
+abandonando a página, aí sim vale reabrir. E ela fica mais cara a cada tela nova
+que compartilhar componente com o cartão — hoje são `CardPreview` e
+`CabecalhoDoCartao`.
 
 ### 17.2 Desempenho e forma do painel
 
@@ -2581,7 +2589,7 @@ aparelho a coisa foi realmente testada.
 | ~~25.5~~ | ~~O cartão leva **marca do produto** no rodapé da página pública?~~ **RESPONDIDA em 20/09/2026: sim.** A marca aparece no rodapé do cartão de conta `gratuito`, e some nos demais planos. Razão declarada pelo Alexandre: *"senão nunca teremos razão para vender"*. Ver 11.11.2 | — | — | Decidida |
 | ~~25.9~~ | ~~Manter o `dourado` ocre ou trocar por teal?~~ **RESPONDIDA em 20/09/2026: mantém o ocre** `#A16207`. A paleta fica com as oito cores de 16.2, sem teal | — | — | Decidida |
 | ~~25.10~~ | ~~O corte de 64 caracteres em propriedade de evento foi escolhido sem consulta.~~ **RESPONDIDA em 20/09/2026: ratificado.** Virou a regra 11.13 | — | — | Decidida |
-| 25.11 | **O alvo de 40 KB de JavaScript da seção 17.1 não é atingível** com Next.js: a página entrega 707 B próprios e o runtime do React traz 105 KB. LCP (460 ms), primeiro byte (258 ms) e "funciona sem JS" atendem. Revisar o alvo para 110 KB (saída A), ou servir o cartão público sem React (saída B)? Detalhes e medições em 17.1.1 | Alexandre | antes do release | Nenhum agora — o produto funciona. Mas B fica mais caro a cada tela nova que compartilhar componente com o cartão |
+| ~~25.11~~ | ~~O alvo de 40 KB de JavaScript não é atingível com Next.js.~~ **RESPONDIDA em 20/09/2026: saída A.** O alvo passa a 110 KB; LCP e "funciona sem JS" seguem sendo os critérios que valem. Ver 17.1.1 | — | — | Decidida |
 | 25.7 | Existe limite de contas por pessoa? Hoje, um e-mail = uma conta, e nada impede alguém de criar dez | Alexandre | quando virar problema | Sem impacto imediato |
 | ~~25.8~~ | ~~O título da home descreve o artefato em vez da transformação.~~ **RESPONDIDA em 20/09/2026:** o título é `Seu contato na agenda de quem você acabou de conhecer.` O subtítulo foi encurtado junto, porque `quem recebe salva seu contato` virou redundante com o título novo. Ver 15.4 | — | — | Decidida |
 
