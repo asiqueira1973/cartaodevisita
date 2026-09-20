@@ -95,12 +95,20 @@ e seção 25 para o que ainda está travado.
 ## Comandos
 
 ```bash
-npm run dev         # servidor local
-npm run typecheck   # tsc --noEmit
-npm run lint        # eslint
-npm test            # suíte unitária, sem dependência externa
-npm run build       # build de produção — sem warning nosso é critério de aceite
+npm run dev            # servidor local
+npm run typecheck      # tsc --noEmit
+npm run lint           # eslint
+npm test               # suíte unitária, sem dependência externa
+npm run build          # build de produção — sem warning nosso é critério de aceite
+npm run diagnostico    # ida e volta real no Firestore + confere as REGRAS publicadas
+npm run deploy:rules   # publica firestore.rules e storage.rules
+npm run emu            # emulador do Firebase (exige Java)
 ```
+
+**Mexeu em `.rules`? Rode `npm run deploy:rules` e depois `npm run diagnostico`.**
+Arquivo no repositório não é regra no ar — o diagnóstico compara os dois e falha
+quando divergem, ou quando acha regra permissiva. Foi esse o problema no
+ViraPágina.
 
 ## Como conferir as pegadinhas
 

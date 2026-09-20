@@ -566,6 +566,27 @@ autorizar.
 | `visitas_diarias` | negado | servidor |
 | `acoes_admin` | negado | servidor |
 
+#### 6.6.1 Publicar as regras não é opcional, e esquecer é o modo de falha
+
+**Arquivo no repositório não é regra no ar.** Há três formas de terminar com o
+banco aberto, e todas são silenciosas:
+
+1. Editar `firestore.rules` e **nunca publicar** — o repositório mente e o banco fica com a regra antiga.
+2. Editar no console do Firebase — o banco muda e o repositório mente.
+3. Criar o projeto em **"modo de teste"**, que nasce com `allow read, write: if true` até uma data. Qualquer pessoa com o id do projeto lê e escreve tudo, e nada na interface avisa.
+
+Por isso `scripts/diagnostico.mjs` **compara o repositório com o que está
+publicado** e falha quando divergem ou quando encontra regra permissiva. Rode-o
+depois de qualquer mudança em `.rules` e antes de qualquer release:
+
+```bash
+npm run diagnostico     # confere; falha se divergir ou se estiver permissivo
+npm run deploy:rules    # publica firestore.rules e storage.rules
+```
+
+Conferido em 20/09/2026: o projeto `cartao-de-visita-60325` nasceu em modo de
+produção, e as duas regras publicadas já batem com as do repositório.
+
 **Nenhuma chamada ao Firestore ou ao Storage acontece no navegador.** Sempre em
 rota de servidor ou componente de servidor. Esta é uma das pegadinhas da seção 18.
 
@@ -2483,6 +2504,7 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 - [ ] Validação de foto por magic bytes, verificada com um arquivo renomeado.
 - [ ] Nenhuma credencial em arquivo versionado nem em variável `NEXT_PUBLIC_`.
 - [ ] Regras do Firestore e do Storage negando todo acesso do cliente.
+- [ ] **`npm run diagnostico` verde**, incluindo as duas linhas de `Regras` — elas comparam o que está no repositório com o que está **publicado**. Ver 6.6.1.
 
 ### 26.7 Operação
 

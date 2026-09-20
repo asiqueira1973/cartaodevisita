@@ -59,8 +59,88 @@ try {
   const [existe] = await getStorage().bucket().exists()
   console.log(existe ? 'Storage    · bucket acessível' : 'Storage    · BUCKET NÃO ENCONTRADO')
 
-  console.log('\nCredenciais funcionando. Projeto:', env.FIREBASE_PROJECT_ID)
+  await conferirRegras(env)
+
+  console.log('\nProjeto:', env.FIREBASE_PROJECT_ID)
 } catch (erro) {
   console.error('\nFALHOU:', erro.message)
   process.exitCode = 1
+}
+
+/**
+ * Compara as regras DO REPOSITÓRIO com as que estão PUBLICADAS (spec 6.6).
+ *
+ * Existe porque arquivo no repositório não é regra no ar. O modo de falha é
+ * silencioso nos dois sentidos: editar o .rules e esquecer de publicar, ou
+ * editar no console e o repositório mentir. Pior ainda é projeto criado em
+ * "modo de teste", que nasce com `allow read, write: if true` e deixa qualquer
+ * um com o id do projeto ler e escrever tudo.
+ *
+ * Não lança: reporta e segue, porque a conta de serviço pode não ter permissão
+ * para ler as regras, e isso não é motivo para o diagnóstico inteiro falhar.
+ */
+async function conferirRegras(env) {
+  let GoogleAuth
+  try {
+    ({ GoogleAuth } = await import('google-auth-library'))
+  } catch {
+    console.log('Regras     · pulado (google-auth-library ausente)')
+    return
+  }
+
+  try {
+    const auth = new GoogleAuth({
+      credentials: {
+        client_email: env.FIREBASE_CLIENT_EMAIL,
+        private_key: env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      },
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    })
+    const { token } = await (await auth.getClient()).getAccessToken()
+    const cabecalho = { authorization: `Bearer ${token}` }
+    const projeto = env.FIREBASE_PROJECT_ID
+
+    const r = await fetch(`https://firebaserules.googleapis.com/v1/projects/${projeto}/releases`, { headers: cabecalho })
+    if (!r.ok) {
+      console.log('Regras     · não consegui ler as publicadas (status', r.status + ')')
+      return
+    }
+
+    const { releases = [] } = await r.json()
+    const local = {
+      'cloud.firestore': readFileSync('firestore.rules', 'utf8'),
+      storage: readFileSync('storage.rules', 'utf8'),
+    }
+
+    for (const release of releases) {
+      const nome = release.name.split('/').pop()
+      const alvo = nome === 'cloud.firestore' ? 'cloud.firestore' : 'storage'
+
+      const rs = await fetch(`https://firebaserules.googleapis.com/v1/${release.rulesetName}`, { headers: cabecalho })
+      const publicada = (await rs.json())?.source?.files?.[0]?.content ?? ''
+
+      // O caso perigoso primeiro: regra permissiva deixa o banco aberto.
+      if (/allow\s+[a-z,\s]*:\s*if\s+(true|request\.time\s*<)/.test(publicada)) {
+        console.log(`Regras     · *** ${nome} ESTÁ PERMISSIVO — qualquer um lê e escreve ***`)
+        process.exitCode = 1
+        continue
+      }
+
+      const iguais = normalizar(publicada) === normalizar(local[alvo])
+      console.log(iguais
+        ? `Regras     · ${nome} publicada e igual ao repositório`
+        : `Regras     · ${nome} DIVERGE do repositório — rode: npm run deploy:rules`)
+      if (!iguais) process.exitCode = 1
+    }
+  } catch (erro) {
+    console.log('Regras     · não consegui conferir:', erro.message)
+  }
+}
+
+/** Ignora comentário e espaço, que não mudam o efeito da regra. */
+function normalizar(regras) {
+  return regras
+    .replace(/\/\/.*$/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim()
 }

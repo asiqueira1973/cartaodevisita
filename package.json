@@ -10,10 +10,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "diagnostico": "node scripts/diagnostico.mjs"
+    "diagnostico": "node scripts/diagnostico.mjs",
+    "deploy:rules": "npx --yes firebase-tools@14 deploy --only firestore:rules,storage",
+    "emu": "npx --yes firebase-tools@14 emulators:start --only firestore,storage"
   },
   "dependencies": {
     "firebase-admin": "^13.10.0",
+    "google-auth-library": "^11.1.0",
     "next": "15.5.25",
     "next-auth": "^5.0.0-beta.32",
     "qrcode": "^1.5.4",
