@@ -102,5 +102,12 @@ export const NFC = {
     'Uma coisa que não funciona: encostar um celular no outro. Nem o iPhone nem o Android passam contato assim. A etiqueta física é o caminho.',
 } as const
 
+/** Quem opera o serviço (spec 20.1). Aparece nos termos e na privacidade. */
+export const RESPONSAVEL = {
+  nome: 'DabLab',
+  cnpj: '61.033.268/0001-14',
+  email: 'alexandre@dablab.com.br',
+} as const
+
 /** Rodapé da página pública, mostrado só no plano gratuito (spec 11.11.2). */
 export const MARCA_RODAPE = 'Feito com Cartão de Visita'
