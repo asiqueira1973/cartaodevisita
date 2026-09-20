@@ -38,7 +38,7 @@ describe('campo opcional vazio vira nulo (spec 7.5)', () => {
 
 describe('iniciais do cartão sem foto (critério 8.2.8)', () => {
   it('usa primeira e última palavra', () => {
-    expect(iniciais('Daniela Saboya')).toBe('DS')
+    expect(iniciais('Helena Prado')).toBe('HP')
     expect(iniciais('Maria da Silva Costa')).toBe('MC')
   })
   it('nome de uma palavra usa só a primeira letra', () => {

@@ -20,7 +20,7 @@ describe('formato do handle (regra 11.1)', () => {
     expect(isHandleFormatValid('dani-ela')).toBe(true)
   })
   it('recusa maiúscula, acento e espaço', () => {
-    expect(isHandleFormatValid('Daniela')).toBe(false)
+    expect(isHandleFormatValid('Helena')).toBe(false)
     expect(isHandleFormatValid('danièla')).toBe(false)
     expect(isHandleFormatValid('dani ela')).toBe(false)
   })
@@ -42,7 +42,7 @@ describe('handles reservados (regra 11.2)', () => {
 
 describe('normalização (regra 11.1)', () => {
   it('tira acento, baixa a caixa e troca espaço por hífen', () => {
-    expect(normalizeToHandle('Daniela Saboya')).toBe('daniela-saboya')
+    expect(normalizeToHandle('Helena Prado')).toBe('helena-prado')
     expect(normalizeToHandle('José Antônio Gonçalves')).toBe('jose-antonio-goncalves')
   })
   it('remove pontuação sem deixar hífen duplicado nem nas pontas', () => {
@@ -55,14 +55,14 @@ describe('normalização (regra 11.1)', () => {
 
 describe('sugestão (critério 8.1.5)', () => {
   it('usa a base quando está livre', async () => {
-    expect(await suggestHandle('Daniela Saboya', async () => false)).toBe('daniela-saboya')
+    expect(await suggestHandle('Helena Prado', async () => false)).toBe('helena-prado')
   })
   it('acrescenta sufixo quando a base está tomada', async () => {
-    const tomados = new Set(['daniela-saboya'])
-    expect(await suggestHandle('Daniela Saboya', async (c) => tomados.has(c))).toBe('daniela-saboya-2')
+    const tomados = new Set(['helena-prado'])
+    expect(await suggestHandle('Helena Prado', async (c) => tomados.has(c))).toBe('helena-prado-2')
   })
   it('devolve vazio quando esgota os sufixos', async () => {
-    expect(await suggestHandle('Daniela Saboya', async () => true)).toBe('')
+    expect(await suggestHandle('Helena Prado', async () => true)).toBe('')
   })
   it('devolve vazio quando o nome não gera 3 caracteres', async () => {
     expect(await suggestHandle('Jô', async () => false)).toBe('')

@@ -124,12 +124,12 @@ function MockupDoCartao() {
   return (
     <div className="mx-auto w-full max-w-64 rounded-[2rem] border-8 border-tinta bg-white p-5 shadow-xl">
       <div className="flex flex-col items-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EDE9FE] text-xl font-bold text-[#6D28D9]" aria-hidden>
-          DS
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#DBEAFE] text-xl font-bold text-[#1D4ED8]" aria-hidden>
+          HP
         </div>
-        <p className="mt-3 text-center text-base font-bold text-cartao-texto">Daniela Saboya</p>
-        <p className="mt-0.5 text-xs font-medium text-[#5B21B6]">Psicanalista</p>
-        <div className="mt-4 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-[#6D28D9] text-[11px] font-semibold text-white">
+        <p className="mt-3 text-center text-base font-bold text-cartao-texto">Helena Prado</p>
+        <p className="mt-0.5 text-xs font-medium text-[#1E40AF]">Psicanalista</p>
+        <div className="mt-4 flex min-h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] text-[11px] font-semibold text-white">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.5 8.5 0 0 1-3.9-.9L3 20.5l1.6-4.9A8.4 8.4 0 0 1 12 3.1a8.4 8.4 0 0 1 9 8.4z" />
           </svg>

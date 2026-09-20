@@ -29,10 +29,10 @@ describe('usuário de rede (regra 11.5)', () => {
 
 describe('e-mail, PIX e endereço (regra 11.5)', () => {
   it('baixa a caixa do e-mail', () => {
-    expect(normalizeLinkValue('email', '  Daniela@Exemplo.COM.br ')).toBe('daniela@exemplo.com.br')
+    expect(normalizeLinkValue('email', '  Helena@Exemplo.COM.br ')).toBe('helena@exemplo.com.br')
   })
   it('guarda a chave PIX como digitada, só aparando as pontas', () => {
-    expect(normalizeLinkValue('pix', '  daniela@exemplo.com.br  ')).toBe('daniela@exemplo.com.br')
+    expect(normalizeLinkValue('pix', '  helena@exemplo.com.br  ')).toBe('helena@exemplo.com.br')
     expect(normalizeLinkValue('pix', '123.456.789-00')).toBe('123.456.789-00')
   })
   it('recusa endereço acima de 120 caracteres', () => {
@@ -63,7 +63,7 @@ describe('montagem da URL final (regra 11.5)', () => {
     expect(buildLinkUrl('whatsapp', '+5511987654321')).toContain('Ol%C3%A1!%20Vi%20seu%20cart%C3%A3o')
   })
   it('PIX não abre link — é botão de copiar', () => {
-    expect(buildLinkUrl('pix', 'daniela@exemplo.com.br')).toBeNull()
+    expect(buildLinkUrl('pix', 'helena@exemplo.com.br')).toBeNull()
   })
 })
 

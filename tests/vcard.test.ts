@@ -5,15 +5,15 @@ import type { Cartao } from '@/types/dominio'
 
 const cartaoBase: Cartao = {
   id: 'u1', usuario_id: 'u1',
-  nome_exibicao: 'Daniela Saboya',
+  nome_exibicao: 'Helena Prado',
   cargo: 'Psicanalista', empresa: null,
   bio: 'Atendimento online e presencial na Zona Sul.',
   foto_url: null, foto_vcard_url: null,
   links: [
     { id: 'l1', tipo: 'whatsapp', valor: '+5521998765432', rotulo: null, ordem: 0 },
-    { id: 'l2', tipo: 'instagram', valor: 'danielasaboya', rotulo: null, ordem: 1 },
-    { id: 'l3', tipo: 'email', valor: 'daniela@exemplo.com.br', rotulo: null, ordem: 2 },
-    { id: 'l4', tipo: 'pix', valor: 'daniela@exemplo.com.br', rotulo: null, ordem: 3 },
+    { id: 'l2', tipo: 'instagram', valor: 'helenaprado', rotulo: null, ordem: 1 },
+    { id: 'l3', tipo: 'email', valor: 'helena@exemplo.com.br', rotulo: null, ordem: 2 },
+    { id: 'l4', tipo: 'pix', valor: 'helena@exemplo.com.br', rotulo: null, ordem: 3 },
   ],
   template: 'minimalista', cor_destaque: 'roxo',
   publicado: true, permitir_indexacao: false, mensagem_whatsapp: null,
@@ -21,7 +21,7 @@ const cartaoBase: Cartao = {
 }
 
 const gerar = (c: Partial<Cartao> = {}, fotoBase64: string | null = null) =>
-  buildVCard({ cartao: { ...cartaoBase, ...c }, handle: 'danielasaboya', urlBase: 'https://cartaodevisita.app.br', fotoBase64 })
+  buildVCard({ cartao: { ...cartaoBase, ...c }, handle: 'helenaprado', urlBase: 'https://cartaodevisita.app.br', fotoBase64 })
 
 describe('quebra de linha e envelope (tabela 14.2)', () => {
   it('usa CRLF, nunca LF puro', () => {
@@ -38,7 +38,7 @@ describe('quebra de linha e envelope (tabela 14.2)', () => {
 
 describe('dobra em 75 OCTETOS (tabela 14.2)', () => {
   it('não mexe em linha curta', () => {
-    expect(foldLine('FN:Daniela')).toBe('FN:Daniela')
+    expect(foldLine('FN:Helena')).toBe('FN:Helena')
   })
   it('dobra a linha da foto e continua com um espaço', () => {
     const linhas = foldLine(`PHOTO;ENCODING=b;TYPE=JPEG:${'A'.repeat(400)}`).split('\r\n')
@@ -70,7 +70,7 @@ describe('escape de texto livre (tabela 14.2)', () => {
 
 describe('mapeamento de campos (tabela 14.1)', () => {
   it('quebra o nome no último espaço', () => {
-    expect(splitName('Daniela Saboya')).toEqual({ nome: 'Daniela', sobrenome: 'Saboya' })
+    expect(splitName('Helena Prado')).toEqual({ nome: 'Helena', sobrenome: 'Prado' })
     expect(splitName('Maria da Silva Costa')).toEqual({ nome: 'Maria da Silva', sobrenome: 'Costa' })
   })
   it('nome de uma palavra fica com sobrenome vazio (caso 22.3)', () => {
@@ -79,10 +79,10 @@ describe('mapeamento de campos (tabela 14.1)', () => {
   it('leva WhatsApp como CELL e e-mail como INTERNET', () => {
     const vcf = gerar()
     expect(vcf).toContain('TEL;TYPE=CELL,VOICE:+5521998765432')
-    expect(vcf).toContain('EMAIL;TYPE=INTERNET:daniela@exemplo.com.br')
+    expect(vcf).toContain('EMAIL;TYPE=INTERNET:helena@exemplo.com.br')
   })
   it('leva a URL do próprio cartão', () => {
-    expect(gerar()).toContain('URL:https://cartaodevisita.app.br/danielasaboya')
+    expect(gerar()).toContain('URL:https://cartaodevisita.app.br/helenaprado')
   })
   it('NÃO leva a chave PIX — não há propriedade vCard para ela (spec 14.1)', () => {
     const vcf = gerar()
@@ -105,11 +105,11 @@ describe('foto (critério 8.6.5)', () => {
 
 describe('nome do arquivo (spec 14.3)', () => {
   it('normaliza acento e espaço', () => {
-    expect(vcardFileName('Daniela Saboya', 'x')).toBe('daniela-saboya.vcf')
+    expect(vcardFileName('Helena Prado', 'x')).toBe('helena-prado.vcf')
     expect(vcardFileName('José Antônio', 'x')).toBe('jose-antonio.vcf')
   })
   it('cai no handle quando a normalização esvazia', () => {
-    expect(vcardFileName('...', 'danielasaboya')).toBe('danielasaboya.vcf')
+    expect(vcardFileName('...', 'helenaprado')).toBe('helenaprado.vcf')
   })
 })
 

@@ -20,18 +20,18 @@ describe('nome em caixa alta (regra 11.12)', () => {
 
 describe('nome que já vem misturado não é tocado', () => {
   it('preserva grafia deliberada', () => {
-    for (const nome of ['Daniela Saboya', 'McSilva Jr', 'd’Ávila', 'LuizA Pereira']) {
+    for (const nome of ['Helena Prado', 'McSilva Jr', 'd’Ávila', 'LuizA Pereira']) {
       expect(normalizeDisplayName(nome)).toBe(nome)
     }
   })
   it('só apara espaço sobrando', () => {
-    expect(normalizeDisplayName('  Daniela   Saboya ')).toBe('Daniela Saboya')
+    expect(normalizeDisplayName('  Helena   Prado ')).toBe('Helena Prado')
   })
 })
 
 describe('primeiro nome para o rodapé do menu', () => {
   it('vem normalizado', () => {
     expect(firstName('ALEXANDRE SIQUEIRA')).toBe('Alexandre')
-    expect(firstName('Daniela Saboya')).toBe('Daniela')
+    expect(firstName('Helena Prado')).toBe('Helena')
   })
 })

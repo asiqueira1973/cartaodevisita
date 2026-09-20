@@ -4,7 +4,7 @@ import { motivoParaNaoPublicar, serieDiaria, somarVisitas } from '@/lib/publicac
 import type { Cartao } from '@/types/dominio'
 
 const cartao = (mudancas: Partial<Cartao> = {}): Cartao => ({
-  id: 'u', usuario_id: 'u', nome_exibicao: 'Daniela Saboya',
+  id: 'u', usuario_id: 'u', nome_exibicao: 'Helena Prado',
   cargo: null, empresa: null, bio: null, foto_url: null, foto_vcard_url: null,
   links: [{ id: 'l', tipo: 'whatsapp', valor: '+5521998765432', rotulo: null, ordem: 0 }],
   template: 'minimalista', cor_destaque: 'azul',

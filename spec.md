@@ -2812,7 +2812,7 @@ costura: é o único arquivo a mexer quando os templates voltarem.
 plano (que era o critério 8.10.8).
 
 **O design já existe e não precisa ser refeito.** O canvas de 20/09/2026 tem os
-quatro templates desenhados em 375 px, com o conteúdo de exemplo da Daniela, e
+quatro templates desenhados em 375 px, com o conteúdo de exemplo da Helena, e
 a tela de Aparência com o estado de plano bloqueado:
 
 | Artboard | O que tem |

@@ -69,7 +69,7 @@ dar para comparar lado a lado. Use este conteúdo:
 
 ```
 Foto:      retrato, enquadramento de rosto
-Nome:      Daniela Saboya
+Nome:      Helena Prado
 Cargo:     Psicanalista
 Empresa:   (vazio)
 Bio:       Atendimento online e presencial na Zona Sul.
@@ -173,7 +173,7 @@ muda é o conteúdo. Não reinvente o arranjo.
 
 2. **Bloco principal** sobre fundo cinza bem claro, **duas colunas**:
    - **Esquerda:** título grande em **serifada**, quebrando em duas linhas; subtítulo em sans cinza, três linhas; botão sólido na cor da marca; e — **ao lado do botão, na mesma linha, em cinza pequeno** — a garantia `Grátis, sem cartão`. Essa garantia fica **beside**, não embaixo: é o detalhe que tira o medo sem roubar peso do botão.
-   - **Direita:** um mockup do produto real — **um cartão de visitas aberto no celular**, em moldura de cantos arredondados com sombra suave. No ViraPágina é um livro aberto; aqui é o cartão da Daniela, com foto, nome, e o botão de WhatsApp visível. **Mostre o produto, não um ícone abstrato.**
+   - **Direita:** um mockup do produto real — **um cartão de visitas aberto no celular**, em moldura de cantos arredondados com sombra suave. No ViraPágina é um livro aberto; aqui é o cartão da Helena, com foto, nome, e o botão de WhatsApp visível. **Mostre o produto, não um ícone abstrato.**
 
 3. **Três cartões lado a lado**, brancos, cantos arredondados, hairline de borda.
    Cada um: **ícone de traço fino na cor da marca** num quadradinho arredondado,
@@ -333,7 +333,7 @@ Estrutura, de cima para baixo:
 
 | Conta | Endereço | Plano | Links | Visitas do mês | |
 |---|---|---|---|---|---|
-| daniela.carl.saboya@gmail.com | /danielasaboya | `Early adopter` | 4 | ▓▓▓░░ 128 | Abrir |
+| helena.prado@exemplo.com.br | /helenaprado | `Early adopter` | 4 | ▓▓▓░░ 128 | Abrir |
 | appsdablab@gmail.com | /apps-dab-lab | `Gratuito` | 5 de 5 | ▓░░░░ 12 | Abrir |
 | alexandre.silva.siqueira@gmail.com | /alexandresiqueira | `Ilimitado` | 9 | ▓▓▓▓▓ 1.204 | Abrir |
 
@@ -424,13 +424,13 @@ Nenhuma das duas instalou nada. Só uma delas tem conta.
 
 ## O que eu quero de volta
 
-1. **Os quatro templates do cartão**, em 375 px, com o conteúdo de exemplo da Daniela — e um deles também no estado mínimo (só nome e WhatsApp).
+1. **Os quatro templates do cartão**, em 375 px, com o conteúdo de exemplo da Helena — e um deles também no estado mínimo (só nome e WhatsApp).
 2. **Os valores das oito cores**, dois tons cada, com o contraste conferido.
 3. **A família tipográfica** e a escala de 6 tamanhos.
 4. **As telas do painel do dono**, em 375 px e em 1024 px.
 5. **As duas telas do admin**, em 1024 px, seguindo o ViraPágina.
 6. **O QR em tela cheia.**
-7. **A home**, em 1024 px e em 375 px — incluindo o **mockup do cartão da Daniela dentro de um celular**, que é a peça que mais trabalha na página.
+7. **A home**, em 1024 px e em 375 px — incluindo o **mockup do cartão da Helena dentro de um celular**, que é a peça que mais trabalha na página.
 
 Se algum dos quatro templates não se sustentar — e o `executivo` é o candidato,
 porque abrir mão da foto num cartão de visitas é uma aposta —, me diga e proponha
