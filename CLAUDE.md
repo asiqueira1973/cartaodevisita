@@ -173,6 +173,7 @@ vercel --prod --yes        # só para emergência, fora do git
 | | |
 |---|---|
 | Repositório | <https://github.com/asiqueira1973/cartaodevisita> (privado) |
+| **Painel do admin** | **<https://cartaodevisita.app.br/admin>** — sem link no produto; responde 404 para quem não está em `lib/admins.ts`, então **não dá para achar navegando** |
 
 **As variáveis de produção já estão configuradas na Vercel**, inclusive
 `EARLY_ADOPTER_ABERTO=true` e `VISAO_API_KEY`. Elas NÃO vêm do `.env.local` —

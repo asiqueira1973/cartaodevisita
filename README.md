@@ -30,6 +30,14 @@ Todas em `.env.example`. As que precisam de atenção:
 Nenhuma credencial vai para o navegador. Variável com `NEXT_PUBLIC_` é pública —
 não coloque segredo atrás desse prefixo por engano.
 
+## Endereços
+
+| | |
+|---|---|
+| Produção | <https://cartaodevisita.app.br> |
+| Painel do dono | <https://cartaodevisita.app.br/conta> |
+| **Painel da plataforma** | <https://cartaodevisita.app.br/admin> — responde 404 para quem não está na allowlist de `lib/admins.ts`, e não tem link em lugar nenhum |
+
 ## Estado
 
 Lógica pura implementada e testada. Firebase, autenticação, rotas e telas ainda

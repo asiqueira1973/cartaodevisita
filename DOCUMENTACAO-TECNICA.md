@@ -329,6 +329,14 @@ Rotas de API do dono: `/api/conta/handle`, `/api/conta/cartao`,
 
 ### 4.3 Do admin — allowlist em código
 
+> ## O painel da plataforma fica em <https://cartaodevisita.app.br/admin>
+>
+> **Não há link para ele em lugar nenhum do produto, de propósito.** Para quem
+> não está na allowlist — inclusive para quem não está logado — ele responde
+> **404**, indistinguível de rota inexistente. Isso significa que **ele é
+> impossível de descobrir navegando**: se você esquecer o endereço, não há como
+> achá-lo clicando. Daí este bloco existir aqui.
+
 | Tela | Rota | Lê | Escreve | Guarda |
 |---|---|---|---|---|
 | Contas | `/admin` | `usuarios`, `cartoes`, `visitas_diarias` | — | `notFound()` no layout |
@@ -336,6 +344,23 @@ Rotas de API do dono: `/api/conta/handle`, `/api/conta/cartao`,
 
 Rotas de API: `/api/admin/contas/[id]/{publicacao,handle,bloqueio,plano}`.
 **Todas com `requireAdminPlataforma()` na primeira linha.**
+
+**Quem entra:** os e-mails listados em `lib/admins.ts`. Hoje:
+`alexandre.silva.siqueira@gmail.com` e `alexandre@dablab.com.br`.
+
+**Como dar acesso a alguém:** acrescentar o e-mail naquele arquivo, commitar e
+fazer push — o deploy é automático. **Não existe tela para promover admin, e não
+deve existir**: exigir commit e deploy é justamente a barreira desejada (spec
+5.3). O arquivo não tem nenhum `import`, para não criar ciclo de dependência.
+
+**O que o admin pode:** tirar cartão do ar, trocar endereço, alterar plano e
+bloquear conta — sempre com motivo, e tudo gravado em `acoes_admin`.
+
+**O que o admin NÃO pode, e a ausência é proposital:** editar foto, texto ou
+links de um cartão, publicar cartão alheio, ou excluir conta de alguém. A
+responsabilidade pelo conteúdo fica com o dono, e a exclusão é ato do titular.
+Há teste estrutural que falha se uma rota ou componente de admin mencionar campo
+de conteúdo do cartão.
 
 ---
 
