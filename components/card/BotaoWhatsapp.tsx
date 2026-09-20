@@ -12,11 +12,12 @@
 import type { ReactNode } from 'react'
 
 export function BotaoWhatsapp({
-  href, handle, cor, children,
+  href, handle, cor, raio, children,
 }: {
   href: string
   handle: string
   cor: string
+  raio: string
   children: ReactNode
 }) {
   function avisar() {
@@ -32,7 +33,7 @@ export function BotaoWhatsapp({
     <a
       href={href}
       onClick={avisar}
-      className="mt-6.5 flex min-h-14 w-full items-center justify-center gap-2.5 rounded-2xl px-5 text-base font-semibold text-white"
+      className={`mt-6.5 flex min-h-14 w-full items-center justify-center gap-2.5 ${raio} px-5 text-base font-semibold text-white`}
       style={{ backgroundColor: cor }}
     >
       {children}
