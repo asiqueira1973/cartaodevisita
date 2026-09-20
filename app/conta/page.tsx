@@ -1,19 +1,21 @@
-// Meu cartão — o editor (épico 8.2, spec 10.2).
+// Meu cartão (épicos 8.2 e 8.7, spec 10.2).
 //
-// Componente de servidor: busca o cartão e entrega para a parte de cliente, que
-// cuida da edição. Nenhuma chamada ao Firestore acontece no navegador
-// (pegadinha 18.4.3).
+// Busca os dados e entrega para a parte de cliente. Nenhuma chamada ao
+// Firestore acontece no navegador (pegadinha 18.4.3).
 
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
-import { buscarCartaoDoDono, garantirUsuario } from '@/lib/firebase/firestore'
+import { buscarCartaoDoDono, garantirUsuario, visitasRecentes } from '@/lib/firebase/firestore'
 import { limitesDoPlano } from '@/lib/planos'
-import { EditorComPrevia } from '@/components/account/EditorComPrevia'
-import { TEXTOS } from '@/lib/copy'
+import { MeuCartao } from '@/components/account/MeuCartao'
 
 export const metadata = { title: 'Meu cartão · Cartão de Visita' }
 
-export default async function MeuCartaoPage() {
+export default async function MeuCartaoPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ aba?: string }>
+}) {
   const sessao = await auth()
   if (!sessao?.user?.email || !sessao.user.id) redirect('/entrar?voltar=/conta')
 
@@ -22,31 +24,28 @@ export default async function MeuCartaoPage() {
     sessao.user.name ?? sessao.user.email, sessao.user.image ?? null,
   )
   const cartao = await buscarCartaoDoDono(usuario.id)
-  if (!cartao) redirect('/conta/handle')
+  if (!cartao || !usuario.handle) redirect('/conta/handle')
 
-  const urlBase = (process.env.NEXT_PUBLIC_URL_BASE ?? 'https://cartaodevisita.app.br').replace(/\/$/, '')
+  const { aba } = await searchParams
+  const abaAtiva = aba === 'visitas' ? 'visitas' : 'conteudo'
+
+  // As visitas só são lidas quando a aba está aberta: são até 30 documentos, e
+  // a maioria das visitas ao painel é para editar, não para olhar número.
+  const visitas = abaAtiva === 'visitas' ? await visitasRecentes(usuario.id, 30) : []
+
+  const urlBase = (process.env.NEXT_PUBLIC_URL_BASE ?? 'https://cartaodevisita.app.br')
+    .replace(/^https?:\/\//, '')
+    .replace(/\/$/, '')
 
   return (
-    <div className="flex flex-col gap-6 px-5 py-6 md:px-7">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <div className="flex min-w-0 grow flex-col gap-1">
-          <h1 className="text-[26px] font-bold tracking-tight text-tinta">{TEXTOS.painelMeuCartao}</h1>
-          <div className="flex items-center gap-2">
-            <span
-              className={`h-1.75 w-1.75 shrink-0 rounded-full ${cartao.publicado ? 'bg-tinta' : 'bg-traco-forte'}`}
-              aria-hidden
-            />
-            <span className="truncate text-[13px] text-tinta-fraca">
-              {cartao.publicado ? `${TEXTOS.painelNoAr} ` : `${TEXTOS.painelForaDoAr} · `}
-              <span className="font-semibold text-tinta">{urlBase.replace(/^https?:\/\//, '')}/{usuario.handle}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <EditorComPrevia
+    <div className="px-5 py-6 md:px-7">
+      <MeuCartao
         cartaoInicial={cartao}
         comMarca={limitesDoPlano(usuario.plano).marcaNoRodape}
+        handle={usuario.handle}
+        urlBase={urlBase}
+        aba={abaAtiva}
+        visitas={visitas}
       />
     </div>
   )

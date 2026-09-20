@@ -14,6 +14,7 @@ import { tons } from '@/lib/cores'
 import { ROTULOS_PADRAO, buildLinkUrl } from '@/lib/links'
 import { IconeDoTipo } from '@/components/card/IconeDoTipo'
 import { CopiarChavePix } from '@/components/card/CopiarChavePix'
+import { BotaoWhatsapp } from '@/components/card/BotaoWhatsapp'
 import { MARCA_RODAPE, TEXTOS } from '@/lib/copy'
 import type { Cartao } from '@/types/dominio'
 
@@ -72,14 +73,14 @@ export function CardPublico({
         )}
 
         {whatsapp && (
-          <a
+          <BotaoWhatsapp
             href={buildLinkUrl('whatsapp', whatsapp.valor, cartao.mensagem_whatsapp) ?? '#'}
-            className="mt-6.5 flex min-h-14 w-full items-center justify-center gap-2.5 rounded-2xl px-5 text-base font-semibold text-white"
-            style={{ backgroundColor: cor.fundo }}
+            handle={handle}
+            cor={cor.fundo}
           >
             <IconeDoTipo tipo="whatsapp" tamanho={20} />
             {whatsapp.rotulo ?? ROTULOS_PADRAO.whatsapp}
-          </a>
+          </BotaoWhatsapp>
         )}
 
         {demais.length > 0 && (
