@@ -8,6 +8,7 @@
 
 import { useState } from 'react'
 import { NFC, TEXTOS } from '@/lib/copy'
+import { BaixarQr } from '@/components/account/BaixarQr'
 
 export function Compartilhar({
   handle, urlBase, urlPermanente, qrSvg, publicado,
@@ -85,15 +86,10 @@ export function Compartilhar({
             <p className="text-[13px] leading-relaxed text-tinta-fraca">
               Para imprimir em cartão, adesivo ou vitrine. Ele aponta para o seu
               endereço permanente — nunca quebra, mesmo se você trocar o endereço.
+              <strong className="text-tinta"> O arquivo vem com seu endereço escrito
+              em cima</strong>, para você achar o certo na galeria se tiver mais de um.
             </p>
-            <a href={`/api/cartoes/${handle}/qr.png`} download
-              onClick={() => void fetch('/api/conta/eventos', {
-                method: 'POST', headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ nome: 'qr_baixado' }),
-              }).catch(() => {})}
-              className="flex min-h-9.5 w-fit items-center rounded-full border border-traco-forte px-4 text-[13px] font-semibold text-tinta">
-              Baixar PNG
-            </a>
+            <BaixarQr handle={handle} urlBase={urlBase} />
           </div>
         </div>
       </section>

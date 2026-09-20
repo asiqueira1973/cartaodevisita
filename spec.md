@@ -1007,9 +1007,27 @@ tela cheia. Em `/conta/compartilhar`, o dono baixa o PNG para imprimir.
 1. O QR codifica **sempre** `https://cartaodevisita.app.br/c/<id_permanente>`, nunca o handle (princípio 0.4).
 2. O SVG é gerado **no servidor**; a página pública não carrega biblioteca de QR no cliente.
 3. Nível de correção de erro M, com zona de silêncio de 4 módulos.
-4. O modo tela cheia mostra o QR preto sobre branco puro ocupando no mínimo 70% da menor dimensão da tela, sem nenhum outro elemento além do handle em texto pequeno.
+4. O modo tela cheia mostra o QR preto sobre branco puro ocupando no mínimo 70% da menor dimensão da tela, com o endereço **acima** do código e nada mais.
 5. O modo tela cheia tenta subir o brilho do aparelho; se o navegador não permitir, a página funciona igual e não mostra erro.
-6. O download entrega um PNG de 1024×1024, nome `qr-<handle>.png`.
+6. O download entrega um PNG de 1024×1214, nome `qr-<handle>.png`, **com o endereço escrito acima do código** — ver 8.5.6.1.
+
+#### 8.5.6.1 Por que o endereço vai dentro da imagem
+
+**Decidido em 20/09/2026, a partir de uso real.** Quem tem mais de um cartão —
+contas Google diferentes, pessoal e empresa — acaba com vários PNGs na galeria
+do celular, e **um QR é visualmente idêntico ao outro**. Sem o endereço na
+imagem, não há como saber qual é qual sem escanear um por um.
+
+O nome do arquivo já carrega o handle, mas galeria de fotos não mostra nome de
+arquivo com destaque — e no iOS quase nunca mostra.
+
+| Regra | Valor |
+|---|---|
+| Onde o endereço fica | **acima** do código, nunca abaixo |
+| Composição | no **navegador**, com canvas |
+| Por que não no servidor | desenhar texto em PNG no servidor exigiria rasterizador de fonte — dependência nativa pesada para uma linha de texto |
+| Se o canvas falhar | cai no PNG do servidor, que é o código puro: pior, mas funciona |
+| Mesma regra na tela cheia | sim: ela é fotografada, e num print o que está no topo se lê primeiro |
 7. Ler o QR com a câmera nativa do iPhone e do Android abre o cartão. **Verificação manual, registrada na seção 22.**
 
 ### 8.6 Salvar nos contatos

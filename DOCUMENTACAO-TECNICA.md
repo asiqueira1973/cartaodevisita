@@ -412,6 +412,13 @@ normalizados, senão continuaria mostrando `(21) 99876-5432` em vez de
 Link com copiar, envio por WhatsApp, QR com download em PNG, e o bloco de NFC com
 o texto **literal** da seção 15.5 do spec. Avisa quando o cartão está fora do ar.
 
+**O PNG baixado leva o endereço escrito acima do código** (spec 8.5.6.1). Quem
+tem mais de um cartão acaba com vários QRs na galeria, e um é visualmente
+idêntico ao outro. A composição é feita **no navegador**, com canvas: no
+servidor precisaria de rasterizador de fonte, dependência nativa pesada para
+desenhar uma linha de texto. Se o canvas falhar, o link cai no PNG do servidor —
+o código puro, sem o texto.
+
 ### 5.6 `/conta/ajustes`
 Três blocos, do inofensivo ao perigoso. O aviso da troca de endereço aparece
 **antes** do campo — é o momento em que a pessoa ainda pode desistir. A exclusão

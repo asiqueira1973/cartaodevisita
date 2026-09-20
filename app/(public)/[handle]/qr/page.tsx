@@ -39,7 +39,14 @@ export default async function QrTelaCheiaPage({ params }: { params: Promise<{ ha
         </Link>
       </div>
 
-      <div className="flex flex-col items-center gap-7">
+      <div className="flex flex-col items-center gap-5">
+        {/* O endereço vem ACIMA do código, não abaixo: esta tela é fotografada,
+            e num print o que está no topo é o que se lê primeiro. Quem tem mais
+            de um cartão precisa saber qual é qual na galeria. */}
+        <p className="text-center text-[17px] font-bold tracking-tight text-cartao-texto">
+          {urlBase.replace(/^https?:\/\//, '')}/{handle}
+        </p>
+
         {/* O critério 8.5.4 fala do CÓDIGO ocupando 70% da menor dimensão, e o
             código é menor que o contêiner: a zona de silêncio de 4 módulos
             exigida por 8.5.3 come as bordas. Num código de 33 módulos ela
@@ -52,9 +59,6 @@ export default async function QrTelaCheiaPage({ params }: { params: Promise<{ ha
           aria-label={`QR code do cartão de ${achado.cartao.nome_exibicao}`}
           dangerouslySetInnerHTML={{ __html: svg }}
         />
-        <p className="text-center text-[15px] font-semibold text-cartao-texto-2">
-          {urlBase.replace(/^https?:\/\//, '')}/{handle}
-        </p>
       </div>
 
       <div className="h-11" />
