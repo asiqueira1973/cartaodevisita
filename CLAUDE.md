@@ -106,6 +106,11 @@ npm run diagnostico    # ida e volta real no Firestore + confere as REGRAS publi
 npm run deploy:rules   # publica firestore.rules e storage.rules
 ```
 
+**Nunca rode `npm run build` com o `npm run dev` no ar.** O build sobrescreve o
+`.next` que o servidor de desenvolvimento está usando, e toda rota passa a dar
+500 com `Cannot find module './vendor-chunks/...'`. A mensagem não diz o que
+aconteceu. Se cair nisso: pare o dev, `rm -rf .next`, suba de novo.
+
 **Mexeu em `.rules`? Rode `npm run deploy:rules` e depois `npm run diagnostico`.**
 Arquivo no repositório não é regra no ar — o diagnóstico compara os dois e falha
 quando divergem, ou quando acha regra permissiva. Foi esse o problema no

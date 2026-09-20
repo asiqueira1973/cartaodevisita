@@ -26,5 +26,8 @@ export async function GET(
   const handle = await resolverIdPermanente(id)
   if (!handle) return new Response(null, { status: 404 })
 
-  return new Response(null, { status: 308, headers: { location: `/${handle}` } })
+  // O `?qr` diz à página que a visita chegou pelo endereço permanente — QR ou
+  // etiqueta NFC (regra 11.8). Sem ele a origem se perderia no salto, e contar
+  // dos dois lados faria a mesma visita entrar duas vezes no total.
+  return new Response(null, { status: 308, headers: { location: `/${handle}?qr` } })
 }

@@ -302,10 +302,25 @@ export type OrigemVisita = 'por_link' | 'por_codigo' | 'salvou_contato' | 'abriu
  */
 export async function registrarVisita(usuarioId: string, origem: OrigemVisita): Promise<void> {
   const data = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date())
+
+  // TODOS os contadores são tocados, mesmo os que não mudaram: `increment(0)`
+  // cria o campo com zero na primeira escrita. Sem isso, um documento só com
+  // `por_link` deixaria `salvou_contato` indefinido, e a soma do painel viraria
+  // NaN no dia em que alguém olhasse (critério 8.7.7).
+  const zerados: Record<OrigemVisita, FirebaseFirestore.FieldValue> = {
+    por_link: FieldValue.increment(0),
+    por_codigo: FieldValue.increment(0),
+    salvou_contato: FieldValue.increment(0),
+    abriu_whatsapp: FieldValue.increment(0),
+  }
+
   await db().collection(VISITAS_DIARIAS).doc(`${usuarioId}_${data}`).set(
     {
       usuario_id: usuarioId,
       data,
+      ...zerados,
+      // `total` conta só quem chegou na página; salvar contato e abrir o
+      // WhatsApp são ações DENTRO da visita, não visitas novas (regra 11.8).
       total: FieldValue.increment(origem === 'por_link' || origem === 'por_codigo' ? 1 : 0),
       [origem]: FieldValue.increment(1),
     },

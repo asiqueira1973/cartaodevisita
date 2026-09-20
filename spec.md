@@ -938,8 +938,28 @@ enxerga aquilo.
 
 1. O conteúdo principal — foto, nome, cargo, bio e todos os links — está no HTML entregue pelo servidor, e a página continua utilizável com JavaScript desativado.
 2. O botão de WhatsApp é o primeiro elemento de ação, com área de toque de no mínimo 44×44 pt (princípio 0.3).
-3. `/c/<id_permanente>` responde **308** para `/<handle>` atual.
+3. `/c/<id_permanente>` responde **308** para `/<handle>?qr` — ver 8.4.3.1.
 4. Trocar o handle e acessar de novo o mesmo `/c/<id_permanente>` leva ao **novo** handle. **Há teste para isso** — é o princípio 0.4 em forma executável.
+
+#### 8.4.3.1 Por que o redirecionamento leva `?qr`
+
+**Divergência do desenho original, decidida em 20/09/2026 ao implementar.**
+
+O `/c/<id>` responde 308 e o navegador refaz a requisição em `/<handle>`. Nesse
+salto **a origem da visita se perde**, e a regra 11.8 precisa distinguir quem
+chegou por QR ou etiqueta de quem chegou por link.
+
+| Alternativa | Por que não |
+|---|---|
+| Contar no `/c/<id>` **e** no `/<handle>` | A mesma visita entraria duas vezes no `total` |
+| Contar só no `/c/<id>` | O 308 é cacheável; o navegador pararia de pedir a rota e as visitas seguintes sumiriam |
+| Usar o cabeçalho `Referer` | Não chega em redirecionamento, e é suprimido por muitos navegadores |
+| Gravar um cookie no `/c/<id>` | Proibido: a página pública não usa cookie de espécie alguma (seção 20.2) |
+
+**O que ficou:** `/c/<id>` **não conta nada** e redireciona para `/<handle>?qr`.
+A página conta uma vez só, e a presença do `?qr` decide entre `por_codigo` e
+`por_link`. O custo é um parâmetro visível na barra de endereço; o `canonical`
+e o Open Graph continuam apontando para a URL limpa.
 5. Handle inexistente, cartão despublicado e conta bloqueada devolvem exatamente a mesma resposta 404, byte a byte, para quem não é o dono.
 6. O dono logado acessando o próprio cartão despublicado vê a página com a tarja de pré-visualização.
 7. Com `permitir_indexacao` falso, a página emite `noindex, nofollow`.
@@ -1262,8 +1282,9 @@ acontece. A copy da seção 15.4 deriva literalmente dela.
 | Regra | Valor |
 |---|---|
 | Granularidade | uma linha por conta por dia |
-| Origem `por_codigo` | chegou por `/c/<id>` |
-| Origem `por_link` | chegou direto em `/<handle>` |
+| Origem `por_codigo` | chegou por `/c/<id>`, identificado pelo `?qr` no destino do 308 (ver 8.4.3.1) |
+| Origem `por_link` | chegou direto em `/<handle>`, sem `?qr` |
+| Onde a visita é contada | **só na página**, nunca no redirecionador |
 | Visita do próprio dono logado | **não conta** |
 | Requisição de robô conhecido (user-agent de bot) | **não conta** |
 | Recarregar a página | conta de novo — não há deduplicação, porque deduplicar exigiria identificar o visitante (seção 20.2) |
@@ -1535,7 +1556,7 @@ por conta.
 
 | Rota | Método | Devolve | Observação |
 |---|---|---|---|
-| `/c/<id_permanente>` | `GET` | **308** para `/<handle>` | `404` se o id não existe, a conta está bloqueada ou o cartão está despublicado |
+| `/c/<id_permanente>` | `GET` | **308** para `/<handle>?qr` (ver 8.4.3.1) | `404` se o id não existe, a conta está bloqueada ou o cartão está despublicado. **Não registra visita** — quem conta é a página |
 | `/api/cartoes/<handle>/vcard` | `GET` | `text/vcard; charset=utf-8` | Ver seção 14. Incrementa `salvou_contato`. `404` nas mesmas condições da página |
 | `/api/cartoes/<handle>/qr.png` | `GET` | `image/png` 1024×1024 | Cache de 1 ano — o conteúdo nunca muda (princípio 0.4) |
 | `/api/eventos/whatsapp` | `POST` | `204` | `{ handle }`. Incrementa `abriu_whatsapp`. **Falha em silêncio** — o clique no WhatsApp nunca espera por esta chamada |
