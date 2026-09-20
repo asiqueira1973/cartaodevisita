@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:emu": "FIRESTORE_EMULATOR_HOST=127.0.0.1:8080 FIREBASE_PROJECT_ID=cartao-de-visita-local vitest run --config vitest.emu.config.ts",
     "diagnostico": "node scripts/diagnostico.mjs",
     "deploy:rules": "npx --yes firebase-tools@14 deploy --only firestore:rules,storage",
     "emu": "npx --yes firebase-tools@14 emulators:start --only firestore,storage"

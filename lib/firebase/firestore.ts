@@ -239,14 +239,35 @@ export async function buscarCartaoDoDono(usuarioId: string): Promise<Cartao | nu
   return snap.exists ? montarCartao(usuarioId, snap.data() as FirebaseFirestore.DocumentData) : null
 }
 
-/** Resolve o id permanente para o handle atual, para o 308 de `/c/<id>` (spec 4.3). */
+/**
+ * Resolve o id permanente para o handle atual, para o 308 de `/c/<id>` (spec 4.3).
+ *
+ * Devolve `null` — e o chamador responde 404 — nas MESMAS condições da página
+ * pública: id inexistente, conta bloqueada ou **cartão despublicado** (spec 13.2).
+ *
+ * A checagem de `publicado` é a que importa aqui e é fácil de esquecer: sem ela
+ * o 308 acontece, o navegador vai para `/<handle>`, e lá toma 404 — mas o
+ * redirecionamento já revelou que aquele id existe e para qual endereço aponta.
+ * Um 308 e um 404 são distinguíveis; era a pegadinha 18.4.2 sendo furada pela
+ * porta dos fundos. Encontrado rodando o épico 8.1 em 20/09/2026.
+ */
 export async function resolverIdPermanente(idPermanente: string): Promise<string | null> {
   const snap = await db().collection(IDS_PERMANENTES).doc(idPermanente).get()
   if (!snap.exists) return null
-  const snapUsuario = await db().collection(USUARIOS).doc(snap.data()?.usuario_id).get()
-  if (!snapUsuario.exists) return null
-  const usuario = montarUsuario(snapUsuario.id, snapUsuario.data() as FirebaseFirestore.DocumentData)
-  return usuario.bloqueado ? null : usuario.handle
+
+  const usuarioId: string = snap.data()?.usuario_id
+  const [snapUsuario, snapCartao] = await Promise.all([
+    db().collection(USUARIOS).doc(usuarioId).get(),
+    db().collection(CARTOES).doc(usuarioId).get(),
+  ])
+  if (!snapUsuario.exists || !snapCartao.exists) return null
+
+  const usuario = montarUsuario(usuarioId, snapUsuario.data() as FirebaseFirestore.DocumentData)
+  if (usuario.bloqueado) return null
+
+  if (!snapCartao.data()?.publicado) return null
+
+  return usuario.handle
 }
 
 /** Origens de visita contadas em `visitas_diarias` (spec 7.6 e regra 11.8). */
