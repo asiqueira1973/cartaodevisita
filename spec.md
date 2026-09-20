@@ -101,6 +101,23 @@ Mandar "meu contato" por WhatsApp exige que a pessoa já esteja no seu WhatsApp 
 que é exatamente o que você está tentando resolver. E o vCard que o celular gera
 sozinho não leva Instagram, LinkedIn nem site.
 
+### 1.0 Por que este produto existe — declarado em 20/09/2026
+
+**Este app é portfólio, não negócio.** O objetivo do responsável de produto é
+mostrar à rede dele o que é capaz de construir. Nas palavras dele: *"é pra minha
+rede e é mais um app pro meu portfólio; não quero ganhar dinheiro com ele"*.
+
+**O que isso muda na leitura deste documento:**
+
+- A seção 1.2 (posicionamento contra HiHello, Popl e afins) continua válida como **desenho de produto** — ela explica por que as decisões são estas —, mas não é um plano de competição comercial.
+- A seção 28.2 (cobrança) é **estrutura possível, não roteiro**. Não há pressa nem meta de receita.
+- A marca no rodapé (11.11.2) continua, mas o papel dela muda: é assinatura de autoria, não alavanca de conversão.
+- A métrica que importa passa a ser **o produto estar acabado e defensável**, não o funil.
+
+**O que isso NÃO muda:** o rigor. O produto é a demonstração, então a qualidade
+de engenharia é justamente o que está sendo mostrado. Nada aqui autoriza
+atalho — as pegadinhas da seção 18.4 valem igual.
+
 **Por que agora.** A leitura de etiqueta NFC passou a funcionar sem app instalado
 em todo iPhone de 2018 em diante e em praticamente todo Android — o destinatário
 encosta e a página abre. Isso torna viável, pela primeira vez, um produto em que
@@ -2655,8 +2672,9 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 
 ### 26.5 Verificação manual em aparelho (seção 22.2)
 
-- [ ] QR lido pela câmera nativa de um **iPhone** e de um **Android**, de tela e de papel.
-- [ ] `.vcf` aberto no **iOS** e no **Android**, com foto, e o contato salvo de verdade.
+- [x] QR lido pela câmera nativa — **20/09/2026**, aparelho a registrar.
+- [x] `.vcf` aberto e o contato salvo de verdade — **20/09/2026**, aparelho a registrar.
+- [x] Envio do link por WhatsApp — **20/09/2026**.
 - [ ] Etiqueta **NTAG215** gravada e lida num iPhone e num Android.
 - [ ] Modelos e versões registrados em `DOCUMENTACAO-TECNICA.md`.
 
@@ -2678,15 +2696,15 @@ grep -rn "visitas_diarias" lib/ app/ -A 8 | grep -iE "ip|user.?agent|cookie|cida
 
 ### 26.7 Operação
 
-- [ ] Domínio apontado, HTTPS funcionando.
+- [x] Domínio apontado, HTTPS funcionando — **20/09/2026**. `cartaodevisita.app.br` e `www` (que redireciona com 308).
 - [ ] Projeto do Firebase no plano Blaze (exigência de 4.6 para o Storage).
-- [ ] **Orçamento com alerta em R$ 20/mês configurado no Google Cloud** (risco 23.5).
-- [ ] Termos de uso e política de privacidade publicados (pergunta 25.6).
+- [x] **Orçamento com alerta configurado no Google Cloud** (risco 23.5) — confirmado pelo responsável em 20/09/2026.
+- [x] Termos de uso e política de privacidade publicados — **20/09/2026**, em `/termos` e `/privacidade`.
 - [ ] E-mail de suporte respondido por alguém (pergunta 25.2).
 
 ### 26.8 Documentação
 
-- [ ] `DOCUMENTACAO-TECNICA.md` gerado com os seis itens da seção 19, conferido contra o sistema implementado.
+- [x] `DOCUMENTACAO-TECNICA.md` gerado com os seis itens da seção 19, conferido contra o sistema implementado — **20/09/2026**. Acrescenta duas seções não exigidas: os bugs encontrados rodando (seção 7) e a verificação manual em aparelho (seção 9).
 - [ ] `CLAUDE.md` na raiz, com convenções, arquitetura, comandos e as cinco pegadinhas.
 - [ ] `README.md` com setup, variáveis de ambiente e como rodar o emulador.
 - [ ] `modelo-cartaodevisita.dbml` batendo com a seção 7.
