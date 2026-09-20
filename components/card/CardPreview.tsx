@@ -15,7 +15,7 @@ import type { Cartao } from '@/types/dominio'
 
 export function CardPreview({ cartao, comMarca }: { cartao: Cartao; comMarca: boolean }) {
   const cor = tons(cartao.cor_destaque)
-  const estilo = ESTILOS[cartao.template]
+  const estilo = ESTILOS
   const whatsapp = cartao.links.find((l) => l.tipo === 'whatsapp')
   const demais = cartao.links
     .filter((l) => l.tipo !== 'whatsapp')

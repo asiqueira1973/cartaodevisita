@@ -28,7 +28,7 @@ export function CardPublico({
   qrSvg: string | null
 }) {
   const cor = tons(cartao.cor_destaque)
-  const estilo = ESTILOS[cartao.template]
+  const estilo = ESTILOS
 
   const ordenados = [...cartao.links].sort((a, b) => a.ordem - b.ordem)
   const whatsapp = ordenados.find((l) => l.tipo === 'whatsapp')

@@ -142,6 +142,18 @@ As duas primeiras têm de vir **vazias**; as três últimas também.
 
 ---
 
+## Uma aparência só
+
+A v1 tem **um** visual: foto redonda centralizada, nome grande, links
+empilhados, cor azul. `template` e `cor_destaque` existem no modelo de dados e
+ficam no padrão — não há tela para trocar, e a rota `PATCH /api/conta/cartao`
+ignora as duas chaves.
+
+Os quatro templates da seção 16.3 chegaram a ser implementados e foram
+removidos no mesmo dia (commit `42e87dc`). `components/card/CabecalhoDoCartao.tsx`
+ficou como costura: é o único arquivo a mexer quando eles voltarem (roadmap
+28.10, com os desenhos prontos no canvas).
+
 ## Fora de escopo
 
 Nada da seção 28 do spec: gravação de NFC, cobrança, etiqueta física vendida,

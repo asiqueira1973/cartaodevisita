@@ -207,7 +207,6 @@ de roadmap (seção 28.1), não o contrário.
 2. Escolher o endereço público (handle), com verificação de disponibilidade.
 3. Editar o cartão: foto, nome de exibição, cargo, empresa, uma linha de bio.
 4. Adicionar, remover e reordenar canais de contato e links.
-5. Escolher um entre os layouts disponíveis e uma cor de destaque da paleta.
 6. Página pública do cartão, renderizada no servidor, em `/<handle>`.
 7. Rota permanente `/c/<id_permanente>` que redireciona para o cartão.
 8. QR code do endereço permanente: na página, em tela cheia e para baixar em PNG.
@@ -231,6 +230,7 @@ de roadmap (seção 28.1), não o contrário.
 | Domínio próprio do usuário | **v2** — seção 28.5 | Exige verificação de DNS e emissão de certificado por tenant. |
 | Analytics por link clicado | **v2** — seção 28.6 | A v1 conta visita à página, não clique em link. Rastrear clique exige redirecionador próprio, que piora a latência da página (princípio 0.2). |
 | App nativo iOS/Android | **v2** — seção 28.1 | O único motivo real para existir é gravar NFC no iPhone. Ver a avaliação em 4.1. |
+| **Escolher visual e cor** — a tela Aparência, os quatro templates e as oito cores | **v2** — seção 28.10 | Decisão de 20/09/2026, tomada durante a implementação: a v1 tem **uma aparência só**. Os quatro templates chegaram a ser implementados e foram removidos no mesmo dia (commit `42e87dc`). Ver 28.10 |
 | Modo escuro | **descartado na v1** | O cartão é uma peça de identidade visual com cor de destaque escolhida pelo dono; herdar o tema do sistema do visitante desfiguraria o cartão de outra pessoa. O painel segue o tema do sistema; a página pública, não. |
 | Importar contato do cartão de papel por foto/OCR | **descartado** | Resolve o problema de quem *recebe* cartão de papel — produto diferente, e fora do anti-escopo 1.1. |
 | Diretório público / busca de pessoas | **descartado** | Transformaria uma ferramenta pessoal numa rede social e criaria um alvo de scraping com valor comercial. Ver seção 20. |
@@ -1069,7 +1069,7 @@ quando esbarra num limite, e na linha discreta em `/conta/ajustes`.
 5. Retirar um e-mail da allowlist devolve a conta ao `plano_anterior`; sem valor guardado, a `gratuito`.
 6. Conta `gratuito` é impedida de adicionar o 6º link, com a mensagem 15.2.17.
 7. Conta `early_adopter` é impedida de adicionar o 16º link, com a mensagem 15.2.6.
-8. Conta `gratuito` vê os quatro templates e as oito cores, com os indisponíveis marcados e **não** clicáveis.
+8. ~~Templates e cores por plano~~ — **removido em 20/09/2026** junto com a Aparência (seção 28.10).
 9. A página pública de conta `gratuito` mostra a marca do produto no rodapé; a dos demais planos, não.
 10. O admin altera o plano de uma conta, e a ação grava em `acoes_admin` com o plano anterior em `detalhe`.
 11. O admin **não** consegue atribuir `pago` — o valor não aparece na interface e a rota o rejeita com `422`.
@@ -1148,7 +1148,6 @@ Todas sob `/conta`, com menu lateral persistente (seção 16.6).
 | Escolher endereço | `/conta/handle` | Campo com sugestão, disponibilidade em tempo real | Confirmar | `handles` | `handles`, `ids_permanentes`, `usuarios` |
 | **Meu cartão** | `/conta` | Formulário + pré-visualização + visitas dos últimos 30 dias | Editar campos, subir/remover foto, publicar/despublicar | `cartoes`, `visitas_diarias` | `cartoes`, Storage |
 | Links | `/conta/links` | Lista ordenável | Adicionar, editar, reordenar, remover | `cartoes` | `cartoes` |
-| Aparência | `/conta/aparencia` | Quatro templates e oito cores, com pré-visualização ao vivo | Escolher | `cartoes` | `cartoes` |
 | Compartilhar | `/conta/compartilhar` | Link, QR, botão de baixar PNG, instruções de NFC | Copiar link, baixar QR | `cartoes`, `usuarios` | — |
 | Ajustes | `/conta/ajustes` | Handle atual, e-mail, **plano atual em uma linha discreta**, indexação, zona de risco | Trocar handle, alternar indexação, sair, excluir conta | `usuarios`, `cartoes` | `usuarios`, `handles`, `cartoes` |
 
@@ -1324,10 +1323,19 @@ Mesma estrutura do ViraPágina, adaptada ao que este produto tem para limitar.
 | Recurso | `gratuito` | `early_adopter` · `ilimitado` · `pago` |
 |---|---|---|
 | Links no cartão | **5** | **15** |
-| Templates (16.3) | `minimalista` e `cartao` | os quatro |
-| Cores de destaque (16.2) | `azul` e `grafite` | as oito |
 | Marca do produto no rodapé da página pública | **sim** | não |
 | Foto, QR, vCard, WhatsApp, PIX, contador de visitas, domínio `/handle` | **sim** | sim |
+
+> **Atenção, consequência da decisão de 20/09/2026.** Com a Aparência fora do
+> MVP (seção 28.10), o plano gratuito passou a se distinguir por **duas coisas
+> apenas**: o teto de links e a marca no rodapé. Visual e cor saíram da tabela
+> porque deixaram de existir como escolha.
+>
+> Isso deixa a diferença entre grátis e pago mais fina do que o desenhado. A
+> marca continua sendo a alavanca principal (e a mais forte), mas quando a
+> seção 28.2 (cobrança) chegar, vale reavaliar se cinco links contra quinze é
+> pressão suficiente — ou se a Aparência precisa voltar justamente para dar
+> substância ao plano pago.
 
 **O plano gratuito entrega um cartão completo e útil.** Nada essencial está atrás
 de plano: foto, QR, salvar-em-contatos e WhatsApp são iguais para todo mundo. O
@@ -1845,7 +1853,13 @@ seção pertencem ao cartão, nunca ao chrome. Verde, âmbar e vermelho de estad
 `cor_destaque` — um cartão com destaque vermelho não pode fazer a mensagem de erro
 do painel sumir no meio da interface.
 
-### 16.3 Templates
+### 16.3 Templates — fora do MVP
+
+> **A v1 tem uma aparência só** (decisão de 20/09/2026, seção 28.10): foto
+> redonda centralizada, nome grande, links empilhados. `template` fica em
+> `minimalista` e `cor_destaque` em `azul` para todo mundo, e não há tela para
+> trocar. O que segue descreve o que volta na v2 — os quatro chegaram a ser
+> implementados e estão no commit `42e87dc`.
 
 Quatro, com a mesma informação e arranjos diferentes. Nenhum deles esconde campo:
 o que muda é hierarquia e proporção.
@@ -2750,6 +2764,40 @@ Scheduler ou cron da Vercel —, o que reabre a assunção 24.6. Até lá, scrip
 
 **Desenho:** provedor de e-mail no Auth.js, com Resend. Acrescenta um fornecedor e
 um fluxo de teste. Aditivo — não muda nada do que já existe.
+
+### 28.10 Aparência: escolher visual e cor
+
+**Por que saiu:** decisão de 20/09/2026, tomada durante a implementação. A v1
+tem uma aparência só.
+
+**O que já está pronto:** os quatro templates da seção 16.3 foram implementados
+e removidos no mesmo dia — estão no commit `42e87dc`. A paleta das oito cores
+(seção 16.2) está definida, com contraste conferido e teste automatizado, e
+`lib/cores.ts` continua no código porque a cor de destaque ainda pinta o botão
+de WhatsApp e as iniciais. `components/card/CabecalhoDoCartao.tsx` ficou como
+costura: é o único arquivo a mexer quando os templates voltarem.
+
+**O que falta:** a tela `/conta/aparencia`, os seletores, e o cumprimento por
+plano (que era o critério 8.10.8).
+
+**O design já existe e não precisa ser refeito.** O canvas de 20/09/2026 tem os
+quatro templates desenhados em 375 px, com o conteúdo de exemplo da Daniela, e
+a tela de Aparência com o estado de plano bloqueado:
+
+| Artboard | O que tem |
+|---|---|
+| `Template-Minimalista` | o que está no ar hoje |
+| `Template-Cartao` | a faixa em 85×55 mm |
+| `Template-Foto` | foto de largura inteira com degradê |
+| `Template-Executivo` | monograma, serifada, canto reto |
+| `Painel-Aparencia` | a tela, desenhada como **conta gratuita**: dois visuais liberados, dois com cadeado, duas cores de oito |
+| `Main` | a paleta das oito cores com o contraste de cada tom |
+
+Canvas: <https://claude.ai/artifact/9LCyyuGCLGafZySQ3xtfKk>
+
+**O que precisa acontecer antes:** nada técnico. É decisão de produto — e ela
+volta junto da conversa de cobrança (28.2), porque a Aparência era metade da
+diferença entre o plano grátis e o pago. Ver a nota em 11.11.2.
 
 ### 28.9 Compartilhar por Apple Wallet e Google Wallet
 

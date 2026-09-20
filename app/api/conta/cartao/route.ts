@@ -6,8 +6,6 @@ import { requireDono } from '@/lib/guards'
 import { atualizarCartao } from '@/lib/firebase/firestore'
 import { LIMITES, paraGravar, validarCampo, type CampoDeTexto } from '@/lib/cartao'
 import { ERROS } from '@/lib/copy'
-import type { CorDestaque, TemplateCartao } from '@/types/dominio'
-import { limitesDoPlano } from '@/lib/planos'
 
 function json(corpo: unknown, status = 200): Response {
   return new Response(JSON.stringify(corpo), { status, headers: { 'content-type': 'application/json' } })
@@ -44,30 +42,9 @@ export async function PATCH(request: Request): Promise<Response> {
     campos[campo] = campo === 'nome_exibicao' ? valor.trim() : paraGravar(valor)
   }
 
-  // Template e cor respeitam o plano (regra 11.11.2). O bloqueio é do servidor:
-  // a interface marca o indisponível, mas quem manda é esta linha.
-  //
-  // Responde 422, e não 403, de propósito: limite de plano não é falha de
-  // autorização — a pessoa PODE editar o próprio cartão, só não pode usar
-  // aquele valor. Deixar 403 aqui corroeria a pegadinha 18.4.2, que reserva o
-  // 403 ao único caso da conta bloqueada. Foi o teste estrutural que pegou.
-  const limites = limitesDoPlano(usuario.plano)
-
-  if ('template' in corpo) {
-    const template = corpo.template as TemplateCartao
-    if (!limites.templates.includes(template)) {
-      return json({ erro: 'plano', campo: 'template', mensagem: ERROS[18] }, 422)
-    }
-    campos.template = template
-  }
-
-  if ('cor_destaque' in corpo) {
-    const cor = corpo.cor_destaque as CorDestaque
-    if (!limites.cores.includes(cor)) {
-      return json({ erro: 'plano', campo: 'cor_destaque', mensagem: ERROS[18] }, 422)
-    }
-    campos.cor_destaque = cor
-  }
+  // `template` e `cor_destaque` NÃO são editáveis na v1 (decisão de 20/09/2026,
+  // roadmap 28.10): há uma aparência só. A rota ignora as duas chaves em
+  // silêncio, como ignora qualquer outra que não conheça.
 
   if (!Object.keys(campos).length) return json({ erro: 'nada_para_gravar' }, 400)
 

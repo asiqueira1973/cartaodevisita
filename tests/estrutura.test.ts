@@ -184,6 +184,24 @@ describe('spec 18.1 — nenhuma string de interface solta em componente', () => 
   })
 })
 
+describe('spec 10.2 — o menu não aponta para tela que não existe', () => {
+  it('todo destino do menu lateral tem uma página', () => {
+    // Encontrado em uso: Aparência e Compartilhar estavam no menu e davam 404.
+    // Link morto no produto é pior do que funcionalidade faltando — a pessoa
+    // conclui que o app está quebrado, não que a tela ainda não chegou.
+    const sidebar = ler(join(RAIZ, 'components/account/Sidebar.tsx'))
+    const destinos = [...sidebar.matchAll(/href: '(\/conta[^']*)'/g)].map((m) => m[1])
+
+    expect(destinos.length, 'a varredura não achou destino nenhum').toBeGreaterThan(0)
+
+    const mortos = destinos.filter((destino) => {
+      const caminho = join(RAIZ, 'app', destino, 'page.tsx')
+      try { return !statSync(caminho).isFile() } catch { return true }
+    })
+    expect(mortos).toEqual([])
+  })
+})
+
 describe('spec 20.5 — nenhum segredo versionado', () => {
   it('o .env.example não traz valor de credencial preenchido', () => {
     const exemplo = ler(join(RAIZ, '.env.example'))

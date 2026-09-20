@@ -25,9 +25,6 @@ const DESTINOS: Destino[] = [
   { href: '/conta/links', rotulo: 'Links', icone: (
     <svg width="17" height="17" viewBox="0 0 24 24" {...traco}><path d="M10 13a4.5 4.5 0 0 0 6.6.5l2.6-2.6a4.6 4.6 0 0 0-6.5-6.5l-1.5 1.5" /><path d="M14 11a4.5 4.5 0 0 0-6.6-.5L4.8 13A4.6 4.6 0 0 0 11.3 19.6l1.5-1.5" /></svg>
   ) },
-  { href: '/conta/aparencia', rotulo: 'Aparência', icone: (
-    <svg width="17" height="17" viewBox="0 0 24 24" {...traco}><circle cx="12" cy="12" r="9" /><path d="M12 3a9 9 0 0 0 0 18" /><circle cx="15.5" cy="9" r="1.2" /></svg>
-  ) },
   { href: '/conta/compartilhar', rotulo: 'Compartilhar', icone: (
     <svg width="17" height="17" viewBox="0 0 24 24" {...traco}><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /></svg>
   ) },
