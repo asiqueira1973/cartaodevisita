@@ -118,6 +118,13 @@ for mesmo inevitável, ele entra em `firestore.indexes.json` e vai no
 `npm run deploy:rules` — nunca criado só pelo link do console, senão o
 repositório mente igual às regras.
 
+**`next build` REESCREVE o `tsconfig.json`.** Ele acrescenta
+`<DIST_DIR>/types/**/*.ts` ao `include` — e se você construiu num diretório
+temporário e depois apagou, o `npm run typecheck` passa a falhar com
+`TS6053: File not found` apontando para arquivo GERADO. O erro não fala de
+código nenhum, e num comando encadeado com `&&` ele derruba o commit em
+silêncio. Se acontecer: tire do `include` as entradas que não sejam `.next/`.
+
 **Nunca rode `npm run build` com o `npm run dev` no ar.** O build sobrescreve o
 `.next` que o servidor de desenvolvimento está usando, e toda rota passa a dar
 500 com `Cannot find module './vendor-chunks/...'`. A mensagem não diz o que
