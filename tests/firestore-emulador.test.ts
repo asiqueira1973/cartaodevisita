@@ -14,10 +14,12 @@ process.env.EARLY_ADOPTER_ABERTO = 'true'
 
 const { db } = await import('@/lib/firebase/admin')
 const {
-  buscarCartaoPorHandle, excluirConta, garantirUsuario, registrarAcaoAdmin,
-  registrarVisita, reservarHandle, resolverIdPermanente, trocarHandle,
-  visitasRecentes,
+  alterarPlano, atualizarCartao, buscarCartaoDoDono, buscarCartaoPorHandle,
+  excluirConta, garantirUsuario, registrarAcaoAdmin, registrarVisita,
+  reservarHandle, resolverIdPermanente, trocarHandle, visitasRecentes,
 } = await import('@/lib/firebase/firestore')
+const { limitesDoPlano } = await import('@/lib/planos')
+const { validarListaDeLinks } = await import('@/lib/links')
 
 /** Apaga tudo entre os testes, para um não enxergar o estado do outro. */
 async function limpar() {
@@ -231,3 +233,106 @@ describe('exclusão da conta (critérios 8.8.5 e 8.8.6, spec 20.4)', () => {
     expect(await buscarCartaoPorHandle('sumiu')).toBeNull()
   })
 })
+
+describe('spec 6.1 — o e-mail guardado acompanha o provedor', () => {
+  it('REGRESSÃO: e-mail, nome e foto são atualizados quando mudam no Google', async () => {
+    // O identificador é o uid, não o e-mail — e por isso o e-mail pode mudar
+    // por baixo. O registro precisa acompanhar: ele é o que o admin vê, o que
+    // vira distinct_id na telemetria, e o que as DUAS allowlists conferem.
+    // Encontrado em 20/09/2026 por um teste de promoção de plano que falhou.
+    await contaNova('u1', 'antigo@exemplo.com')
+
+    const depois = await garantirUsuario('u1', 'novo@exemplo.com', 'Nome Novo', 'https://foto/nova.jpg')
+    expect(depois.email).toBe('novo@exemplo.com')
+    expect(depois.nome_google).toBe('Nome Novo')
+
+    const gravado = (await db().collection('usuarios').doc('u1').get()).data()
+    expect(gravado?.email).toBe('novo@exemplo.com')
+    expect(gravado?.foto_google_url).toBe('https://foto/nova.jpg')
+  })
+
+  it('mudar de e-mail NÃO toca no cartão nem no endereço', async () => {
+    await contaNova('u1', 'antigo@exemplo.com')
+    const { id_permanente } = (await reservarHandle('u1', 'estavel'))!
+
+    await garantirUsuario('u1', 'novo@exemplo.com', 'Nome Novo', null)
+
+    const usuario = (await db().collection('usuarios').doc('u1').get()).data()
+    expect(usuario?.handle).toBe('estavel')
+    expect(usuario?.id_permanente).toBe(id_permanente)
+  })
+})
+
+describe('regra 11.11.6 — rebaixar plano NÃO apaga nada', () => {
+  /** Monta uma lista de N links de tipos que podem repetir. */
+  const muitosLinks = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      id: `l${i}`, tipo: 'site' as const, valor: `https://exemplo${i}.com.br/`,
+      rotulo: null, ordem: i,
+    }))
+
+  it('conta com 12 links rebaixada para gratuito mantém os 12', async () => {
+    await contaNova('u1', 'alguem@exemplo.com')
+    await reservarHandle('u1', 'rebaixado')
+    await atualizarCartao('u1', { links: muitosLinks(12) })
+    await db().collection('cartoes').doc('u1').update({ publicado: true })
+
+    // Nasce early_adopter (EARLY_ADOPTER_ABERTO=true no topo do arquivo).
+    expect((await db().collection('usuarios').doc('u1').get()).data()?.plano).toBe('early_adopter')
+
+    await alterarPlano('u1', 'gratuito')
+
+    const cartao = await buscarCartaoDoDono('u1')
+    expect(cartao!.links).toHaveLength(12)
+
+    // E o cartão continua no ar exatamente como estava.
+    const publico = await buscarCartaoPorHandle('rebaixado')
+    expect(publico!.cartao.links).toHaveLength(12)
+  })
+
+  it('mas a pessoa não consegue ADICIONAR mais um', async () => {
+    // O que muda no rebaixamento é o que se pode fazer daqui para a frente.
+    const teto = limitesDoPlano('gratuito').links
+    expect(validarListaDeLinks(muitosLinks(12), teto)).toBe('acima_do_plano')
+    expect(validarListaDeLinks(muitosLinks(13), teto)).toBe('acima_do_plano')
+  })
+
+  it('remover links até caber volta a permitir salvar', async () => {
+    const teto = limitesDoPlano('gratuito').links
+    expect(validarListaDeLinks(muitosLinks(5), teto)).toBeNull()
+  })
+})
+
+describe('regra 11.11 — planos ponta a ponta', () => {
+  it('a marca no rodapé segue o plano, e só ela', async () => {
+    // Depois do corte da Aparência (roadmap 28.10), o plano gratuito se
+    // distingue por DUAS coisas: teto de links e marca. Este teste guarda a
+    // segunda; validarListaDeLinks guarda a primeira.
+    expect(limitesDoPlano('gratuito').marcaNoRodape).toBe(true)
+    for (const plano of ['early_adopter', 'ilimitado', 'pago'] as const) {
+      expect(limitesDoPlano(plano).marcaNoRodape).toBe(false)
+    }
+  })
+
+  it('a allowlist promove no login seguinte, sem tocar no cartão', async () => {
+    // Primeiro acesso com e-mail fora da lista.
+    await contaNova('u1', 'vira-ilimitado@exemplo.com')
+    await reservarHandle('u1', 'promovido')
+    await atualizarCartao('u1', { links: muitosLinksDeSite(3) })
+
+    // Agora o mesmo uid entra com um e-mail que ESTÁ na allowlist.
+    const promovido = await garantirUsuario('u1', 'alexandre@dablab.com.br', 'Alexandre', null)
+    expect(promovido.plano).toBe('ilimitado')
+    expect(promovido.plano_anterior).toBe('early_adopter')
+
+    // O conteúdo do cartão não foi tocado.
+    expect((await buscarCartaoDoDono('u1'))!.links).toHaveLength(3)
+  })
+})
+
+function muitosLinksDeSite(n: number) {
+  return Array.from({ length: n }, (_, i) => ({
+    id: `s${i}`, tipo: 'site' as const, valor: `https://exemplo${i}.com.br/`,
+    rotulo: null, ordem: i,
+  }))
+}

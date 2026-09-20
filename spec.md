@@ -489,6 +489,18 @@ caso apareça demanda real.
 
 O identificador interno é o `uid` do Google (`sub`), não o e-mail — e-mail muda.
 
+**E quando muda, o registro acompanha.** `garantirUsuario` compara `email`,
+`nome_google` e `foto_google_url` com o que o provedor mandou e atualiza o que
+divergir. Não é cosmético: o e-mail guardado é o que o admin vê na listagem
+(seção 10.3), o que vira `distinct_id` na telemetria (21.3.2), e o que as **duas
+allowlists** conferem — a de admin (5.3) e a de ilimitados (11.11.4). E-mail
+velho guardado faz a allowlist olhar para o endereço errado.
+
+A reconciliação de plano também usa o e-mail **atual**, nunca o guardado.
+
+*Encontrado em 20/09/2026, por um teste de promoção de plano que falhou por
+outro motivo. Há teste de regressão.*
+
 ### 6.2 Como a conta é criada
 
 Autocadastro no primeiro login. Não há tela de cadastro, não há convite, não há

@@ -1,5 +1,6 @@
 // Alterar o plano de uma conta (regra 11.11.5, critérios 8.10.10 e 8.10.11).
 
+import { revalidateTag } from 'next/cache'
 import { requireAdminPlataforma } from '@/lib/guards'
 import { alterarPlano, buscarContaParaAdmin, registrarAcaoAdmin } from '@/lib/firebase/firestore'
 import { isPlanoAtribuivelPorAdmin } from '@/lib/planos'
@@ -40,6 +41,11 @@ export async function PATCH(
     guarda.dados.email, 'alterou_plano', id,
     `${anterior} → ${plano}${corpo.detalhe?.trim() ? ` · ${corpo.detalhe.trim()}` : ''}`,
   )
+
+  // O plano decide a marca no rodapé da página pública (regra 11.11.2), então
+  // o cache de leitura precisa cair — senão a marca aparece ou some com até 60
+  // segundos de atraso, e quem conferir vai achar que não funcionou.
+  if (conta.usuario.handle) revalidateTag(`cartao:${conta.usuario.handle}`)
 
   return new Response(JSON.stringify({ plano }), { headers: { 'content-type': 'application/json' } })
 }

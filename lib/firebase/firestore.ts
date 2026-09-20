@@ -107,14 +107,25 @@ export async function garantirUsuario(
     return montarUsuario(uid, novo)
   }
 
-  const usuario = montarUsuario(uid, snap.data() as FirebaseFirestore.DocumentData)
+  const guardado = montarUsuario(uid, snap.data() as FirebaseFirestore.DocumentData)
   const mudancas: Record<string, unknown> = {}
 
-  const reconciliado = reconciliarPlano(usuario.email, usuario.plano, usuario.plano_anterior)
+  // O identificador da conta é o uid, não o e-mail (spec 6.1) — e é justamente
+  // por isso que o e-mail pode mudar por baixo. Quando muda, o registro tem de
+  // acompanhar: ele é o que o admin vê na listagem, o que vira `distinct_id` na
+  // telemetria (21.3.2), e o que as duas allowlists conferem. E-mail velho
+  // guardado faz a allowlist olhar para o endereço errado.
+  const usuario: Usuario = { ...guardado, email, nome_google: nomeGoogle, foto_google_url: fotoGoogleUrl }
+  if (guardado.email !== email) mudancas.email = email
+  if (guardado.nome_google !== nomeGoogle) mudancas.nome_google = nomeGoogle
+  if (guardado.foto_google_url !== fotoGoogleUrl) mudancas.foto_google_url = fotoGoogleUrl
+
+  // Reconcilia contra o e-mail ATUAL, não o guardado (regra 11.11.4).
+  const reconciliado = reconciliarPlano(email, usuario.plano, usuario.plano_anterior)
   if (reconciliado) Object.assign(mudancas, reconciliado)
 
   const umDia = 24 * 60 * 60 * 1000
-  if (Date.now() - usuario.ultimo_acesso_em.getTime() > umDia) {
+  if (Date.now() - guardado.ultimo_acesso_em.getTime() > umDia) {
     mudancas.ultimo_acesso_em = new Date()
   }
 
