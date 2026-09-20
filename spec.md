@@ -2086,6 +2086,11 @@ Cada uma tem um comando de verificação na seção 26.
    resposta HTTP correta para "autenticado, mas proibido". O teste estrutural
    permite esse 403 **só em `lib/guards.ts`**; qualquer outro no projeto quebra
    a suíte.
+
+   **Limite de plano responde `422`, não `403`** (regra 11.11.2). A pessoa PODE
+   editar o próprio cartão — ela só não pode usar aquele template ou aquela cor.
+   Tratar isso como falha de autorização espalharia 403 pelo projeto e, com
+   isso, tiraria o valor de um invariante que vale justamente por ser absoluto.
 3. **Nenhuma chamada ao Firestore ou ao Storage acontece no navegador.** Sempre em rota de servidor ou componente de servidor. As regras de segurança negam todo acesso do cliente — elas não são a autorização, são a garantia de que não existe segunda porta.
 4. **O QR e a etiqueta NFC codificam `/c/<id_permanente>`, nunca `/<handle>`.** É o princípio 0.4. Há teste que troca o handle e verifica que o id permanente continua levando ao cartão.
 5. **`visitas_diarias` não ganha campo que identifique visitante.** Sem IP, sem user-agent, sem cookie, sem cidade. Há teste estrutural que falha se a forma do documento mudar sem o teste ser atualizado junto.

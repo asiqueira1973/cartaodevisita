@@ -89,7 +89,7 @@ export function Sidebar({ nome }: { nome: string }) {
         </form>
       </nav>
 
-      <nav aria-label="Painel" className="fixed inset-x-0 bottom-0 z-10 flex border-t border-traco bg-superficie px-1 pt-2 pb-safe md:hidden">
+      <nav aria-label="Painel" className="fixed inset-x-0 bottom-0 z-10 flex border-t border-traco bg-superficie px-1 pt-2 pb-[env(safe-area-inset-bottom)] md:hidden">
         {DESTINOS.map((d) => (
           <Link
             key={d.href}

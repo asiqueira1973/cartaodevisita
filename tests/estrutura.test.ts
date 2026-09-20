@@ -110,12 +110,26 @@ describe('pegadinha 18.4.2 — 404, nunca 403', () => {
   it('o único 403 do projeto é o da conta bloqueada em guards.ts', () => {
     // Exceção declarada (spec 18.4.2): uma conta bloqueada recebendo 403 nas
     // PRÓPRIAS rotas não confirma a existência de recurso alheio — ela já sabe
-    // que a conta é dela. Qualquer outro 403 é violação.
+    // que a conta é dela. Qualquer outro 403 é violação; limite de plano
+    // responde 422.
+    //
+    // A varredura ignora COMENTÁRIOS de propósito: sem isso, um comentário
+    // explicando por que NÃO se usa 403 derruba o teste. Já aconteceu duas
+    // vezes neste projeto, nos dois sentidos.
     const culpados = [...arquivos('app'), ...arquivos('lib')]
       .filter((f) => curto(f) !== 'lib/guards.ts')
-      .filter((f) => /\b403\b/.test(ler(f)))
+      .filter((f) => /\b403\b/.test(codigoExecutavel(ler(f))))
       .map(curto)
     expect(culpados).toEqual([])
+  })
+
+  it('limite de plano responde 422, não 403 (regra 11.11.2)', () => {
+    const rota = codigoExecutavel(ler(join(RAIZ, 'app/api/conta/cartao/route.ts')))
+    // Onde há ERROS[18] — "Esse visual está disponível em outro plano" — o
+    // status tem de ser 422.
+    for (const linha of rota.split('\n').filter((l) => l.includes('ERROS[18]'))) {
+      expect(linha, `esperava 422 em: ${linha.trim()}`).toContain('422')
+    }
   })
 })
 

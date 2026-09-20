@@ -236,6 +236,21 @@ export async function buscarCartaoPorHandle(
   return { cartao, usuario }
 }
 
+/**
+ * Grava campos do cartão (épico 8.2).
+ * Recebe só os campos que mudaram; `atualizado_em` é sempre acrescentado.
+ *
+ * Não valida nada: a validação é da rota, que conhece as regras da seção 11 e
+ * devolve a mensagem certa. Esta função só escreve.
+ */
+export async function atualizarCartao(
+  usuarioId: string,
+  campos: Record<string, unknown>,
+): Promise<Cartao | null> {
+  await db().collection(CARTOES).doc(usuarioId).update({ ...campos, atualizado_em: new Date() })
+  return buscarCartaoDoDono(usuarioId)
+}
+
 /** Busca o cartão do próprio dono, publicado ou não (critério 8.4.6). */
 export async function buscarCartaoDoDono(usuarioId: string): Promise<Cartao | null> {
   const snap = await db().collection(CARTOES).doc(usuarioId).get()

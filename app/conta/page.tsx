@@ -1,57 +1,62 @@
-// Meu cartão (spec 10.2). Por enquanto só confirma que o fluxo do épico 8.1
-// fecha: a conta nasceu, o endereço foi reservado e o id permanente existe.
-// O editor completo é o épico 8.2.
+// Meu cartão — o editor (épico 8.2, spec 10.2).
+//
+// Componente de servidor: busca o cartão e entrega para a parte de cliente, que
+// cuida da edição. Nenhuma chamada ao Firestore acontece no navegador
+// (pegadinha 18.4.3).
 
+import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
-import { garantirUsuario } from '@/lib/firebase/firestore'
+import { buscarCartaoDoDono, garantirUsuario } from '@/lib/firebase/firestore'
+import { limitesDoPlano } from '@/lib/planos'
+import { CORES } from '@/lib/cores'
+import { EditorComPrevia } from '@/components/account/EditorComPrevia'
 
 export const metadata = { title: 'Meu cartão · Cartão de Visita' }
 
+const NOME_DO_TEMPLATE = {
+  minimalista: 'minimalista',
+  cartao: 'cartão',
+  foto: 'foto',
+  executivo: 'executivo',
+} as const
+
 export default async function MeuCartaoPage() {
   const sessao = await auth()
+  if (!sessao?.user?.email || !sessao.user.id) redirect('/entrar?voltar=/conta')
+
   const usuario = await garantirUsuario(
-    sessao!.user.id,
-    sessao!.user.email!,
-    sessao!.user.name ?? sessao!.user.email!,
-    sessao!.user.image ?? null,
+    sessao.user.id, sessao.user.email,
+    sessao.user.name ?? sessao.user.email, sessao.user.image ?? null,
   )
+  const cartao = await buscarCartaoDoDono(usuario.id)
+  if (!cartao) redirect('/conta/handle')
 
   const urlBase = (process.env.NEXT_PUBLIC_URL_BASE ?? 'https://cartaodevisita.app.br').replace(/\/$/, '')
 
   return (
-    <div className="flex flex-col gap-5 px-5 py-6 md:px-7">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-[26px] font-bold tracking-tight text-tinta">Meu cartão</h1>
-        <p className="text-[13px] text-tinta-fraca">
-          Conta criada. O editor chega no épico 8.2 do spec.
-        </p>
+    <div className="flex flex-col gap-6 px-5 py-6 md:px-7">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex min-w-0 grow flex-col gap-1">
+          <h1 className="text-[26px] font-bold tracking-tight text-tinta">Meu cartão</h1>
+          <div className="flex items-center gap-2">
+            <span
+              className={`h-1.75 w-1.75 shrink-0 rounded-full ${cartao.publicado ? 'bg-tinta' : 'bg-traco-forte'}`}
+              aria-hidden
+            />
+            <span className="truncate text-[13px] text-tinta-fraca">
+              {cartao.publicado ? 'No ar em ' : 'Fora do ar · '}
+              <span className="font-semibold text-tinta">{urlBase.replace(/^https?:\/\//, '')}/{usuario.handle}</span>
+            </span>
+          </div>
+        </div>
       </div>
 
-      <dl className="flex max-w-xl flex-col divide-y divide-traco rounded-xl border border-traco">
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <dt className="text-[13px] font-semibold text-tinta">Endereço</dt>
-          <dd className="truncate text-[13px] text-tinta-fraca">{urlBase}/{usuario.handle}</dd>
-        </div>
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <dt className="text-[13px] font-semibold text-tinta">
-            Endereço permanente
-            <span className="ml-1.5 font-medium text-tinta-apagada">· QR e NFC</span>
-          </dt>
-          <dd className="truncate font-mono text-[13px] text-tinta-fraca">/c/{usuario.id_permanente}</dd>
-        </div>
-        <div className="flex items-center justify-between gap-4 px-4 py-3">
-          <dt className="text-[13px] font-semibold text-tinta">Plano</dt>
-          <dd>
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-              usuario.plano === 'ilimitado' ? 'bg-tinta text-white'
-                : usuario.plano === 'gratuito' ? 'bg-superficie-2 text-tinta-fraca'
-                : 'border border-tinta text-tinta'
-            }`}>
-              {{ gratuito: 'Gratuito', early_adopter: 'Early adopter', ilimitado: 'Ilimitado', pago: 'Pago' }[usuario.plano]}
-            </span>
-          </dd>
-        </div>
-      </dl>
+      <EditorComPrevia
+        cartaoInicial={cartao}
+        comMarca={limitesDoPlano(usuario.plano).marcaNoRodape}
+        template={NOME_DO_TEMPLATE[cartao.template]}
+        cor={CORES[cartao.cor_destaque].rotulo.toLowerCase()}
+      />
     </div>
   )
 }
