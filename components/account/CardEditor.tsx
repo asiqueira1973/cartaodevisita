@@ -7,8 +7,16 @@
 // é mais uma coisa que ela pode esquecer de apertar.
 //
 // Não toca no Firestore (pegadinha 18.4.3) — fala com a rota de servidor.
+//
+// TODA gravação bem-sucedida chama `router.refresh()`. Não é enfeite: o Next
+// guarda em cache, no navegador, a versão renderizada desta página. Sem o aviso,
+// quem preenche os campos, sai para Links ou Compartilhar e volta recebe a
+// versão CACHEADA — que é a de quando a página abriu, com tudo vazio. A tela
+// parece apagada, embora o banco esteja certo. Aconteceu com a primeira pessoa
+// que usou o produto, em 20/09/2026.
 
 import { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { LIMITES, deveMostrarContador, type CampoDeTexto } from '@/lib/cartao'
 import { TETO_ORIGINAL_BYTES } from '@/lib/imagens'
 import { gerarDerivadas } from '@/lib/redimensionar'
@@ -50,6 +58,7 @@ export function CardEditor({
   const [foto, setFoto] = useState<string | null>(cartaoInicial.foto_url)
   const [enviandoFoto, setEnviandoFoto] = useState(false)
   const seletor = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
   // Guarda o que já foi gravado, para não mandar requisição quando a pessoa
   // entra e sai do campo sem mudar nada.
@@ -76,6 +85,8 @@ export function CardEditor({
       gravado.current[campo] = valor
       if (dados.cartao) onMudou(dados.cartao)
       setEstado('salvo')
+      // Avisa o Next que esta página mudou no servidor (ver comentário no topo).
+      router.refresh()
     } catch {
       setErro(ERROS[16])
       setEstado('erro')
@@ -108,6 +119,7 @@ export function CardEditor({
       if (dados.cartao) {
         setFoto(dados.cartao.foto_url)
         onMudou(dados.cartao)
+        router.refresh()
       }
     } catch {
       // Falha do canvas é diferente de falha de rede, e a copy distingue as duas.
@@ -126,6 +138,7 @@ export function CardEditor({
       if (r.ok && dados.cartao) {
         setFoto(null)
         onMudou(dados.cartao)
+        router.refresh()
       }
     } finally {
       setEnviandoFoto(false)

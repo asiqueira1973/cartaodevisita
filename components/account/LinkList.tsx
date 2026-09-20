@@ -9,6 +9,7 @@
 // Não toca no Firestore (pegadinha 18.4.3) — fala com a rota, que tem a guarda.
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { IconeDoTipo } from '@/components/card/IconeDoTipo'
 import { LIMITES } from '@/lib/cartao'
 import { ROTULOS_PADRAO, TIPOS, TIPOS_UNICOS } from '@/lib/links'
@@ -62,6 +63,7 @@ export function LinkList({
   const [erro, setErro] = useState<string | null>(null)
   const [salvando, setSalvando] = useState(false)
   const [escolhendoTipo, setEscolhendoTipo] = useState(false)
+  const router = useRouter()
 
   const noTeto = itens.length >= tetoDoPlano
   const tiposJaUsados = new Set(itens.map((i) => i.tipo))
@@ -89,6 +91,9 @@ export function LinkList({
         // digitado em vez do que ficou guardado.
         setItens([...dados.cartao.links].sort((a, b) => a.ordem - b.ordem).map(paraLocal))
         onMudou(dados.cartao)
+        // Pelo mesmo motivo do CardEditor: sem isto, voltar para "Meu cartão"
+        // traz a versão cacheada da página, anterior a estes links.
+        router.refresh()
       }
       return true
     } catch {
