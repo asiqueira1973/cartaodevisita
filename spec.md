@@ -1688,6 +1688,14 @@ Usados quando `rotulo` é nulo.
 | Home, botão | `Criar meu cartão` |
 | Home, ao lado do botão | `Grátis, sem cartão` |
 | Home, rodapé | `Cartão de Visita — Dab Lab` · `Termos` · `Privacidade` · `<e-mail de suporte>` |
+| Painel, título · Meu cartão | `Meu cartão` |
+| Painel, título · Links | `Links` |
+| Painel, título · Aparência | `Aparência` |
+| Painel, título · Compartilhar | `Compartilhar` |
+| Painel, título · Ajustes | `Ajustes` |
+| Painel, contador de links | `<n> de <teto>` |
+| Painel, estado · no ar | `No ar em` |
+| Painel, estado · fora do ar | `Fora do ar` |
 | Login, título | `Entre para montar seu cartão` |
 | Login, botão | `Entrar com o Google` |
 | Login, rodapé | `Sem senha para lembrar. Ao entrar, você concorda com os termos e a privacidade.` |

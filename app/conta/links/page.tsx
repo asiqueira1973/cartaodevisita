@@ -1,4 +1,8 @@
 // Links (épico 8.3, spec 10.2).
+//
+// O título e o contador ficam DENTRO da parte de cliente: o contador muda a
+// cada link adicionado, e renderizado no servidor ele congelaria no valor que
+// tinha quando a página carregou.
 
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
@@ -22,14 +26,7 @@ export default async function LinksPage() {
   const limites = limitesDoPlano(usuario.plano)
 
   return (
-    <div className="flex flex-col gap-6 px-5 py-6 md:px-7">
-      <div className="flex items-center gap-4">
-        <h1 className="grow text-[26px] font-bold tracking-tight text-tinta">Links</h1>
-        <span className="text-[13px] tabular-nums text-tinta-apagada">
-          {cartao.links.length} de {limites.links}
-        </span>
-      </div>
-
+    <div className="px-5 py-6 md:px-7">
       <LinksComPrevia
         cartaoInicial={cartao}
         comMarca={limites.marcaNoRodape}

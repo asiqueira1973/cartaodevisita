@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth'
 import { buscarCartaoDoDono, garantirUsuario } from '@/lib/firebase/firestore'
 import { limitesDoPlano } from '@/lib/planos'
 import { EditorComPrevia } from '@/components/account/EditorComPrevia'
+import { TEXTOS } from '@/lib/copy'
 
 export const metadata = { title: 'Meu cartão · Cartão de Visita' }
 
@@ -29,14 +30,14 @@ export default async function MeuCartaoPage() {
     <div className="flex flex-col gap-6 px-5 py-6 md:px-7">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <div className="flex min-w-0 grow flex-col gap-1">
-          <h1 className="text-[26px] font-bold tracking-tight text-tinta">Meu cartão</h1>
+          <h1 className="text-[26px] font-bold tracking-tight text-tinta">{TEXTOS.painelMeuCartao}</h1>
           <div className="flex items-center gap-2">
             <span
               className={`h-1.75 w-1.75 shrink-0 rounded-full ${cartao.publicado ? 'bg-tinta' : 'bg-traco-forte'}`}
               aria-hidden
             />
             <span className="truncate text-[13px] text-tinta-fraca">
-              {cartao.publicado ? 'No ar em ' : 'Fora do ar · '}
+              {cartao.publicado ? `${TEXTOS.painelNoAr} ` : `${TEXTOS.painelForaDoAr} · `}
               <span className="font-semibold text-tinta">{urlBase.replace(/^https?:\/\//, '')}/{usuario.handle}</span>
             </span>
           </div>

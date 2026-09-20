@@ -163,6 +163,27 @@ describe('pegadinha 18.4.5 e regra 21.3.1 — a página pública não rastreia n
   })
 })
 
+describe('spec 18.1 — nenhuma string de interface solta em componente', () => {
+  it('título de tela vem sempre de lib/copy.ts', () => {
+    // Guarda ESTREITO de propósito: só títulos. Detectar toda copy solta em JSX
+    // daria falso positivo em exemplo de campo e em rótulo técnico. Título de
+    // tela, porém, é sempre copy de produto — e foi exatamente aí que a regra
+    // 18.1 foi furada quatro vezes neste projeto.
+    const culpados: string[] = []
+    for (const arquivo of [...arquivos('app'), ...arquivos('components')]) {
+      const codigo = codigoExecutavel(ler(arquivo))
+      for (const titulo of codigo.match(/<h1[^>]*>([^<]+)<\/h1>/g) ?? []) {
+        const conteudo = titulo.replace(/<[^>]+>/g, '').trim()
+        // Conteúdo vindo de expressão ({TEXTOS.x}) é o certo; texto cru não é.
+        if (conteudo && !conteudo.startsWith('{')) {
+          culpados.push(`${curto(arquivo)}: <h1>${conteudo}</h1>`)
+        }
+      }
+    }
+    expect(culpados).toEqual([])
+  })
+})
+
 describe('spec 20.5 — nenhum segredo versionado', () => {
   it('o .env.example não traz valor de credencial preenchido', () => {
     const exemplo = ler(join(RAIZ, '.env.example'))
