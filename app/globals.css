@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* Tokens da seção 16 do spec.
+   O painel é monocromático — preto é a marca (16.6). As oito cores de destaque
+   pertencem ao CARTÃO, nunca ao chrome do produto (16.2). */
+@theme {
+  /* Painel — spec 16.6 */
+  --color-tinta: #0D0D0D;
+  --color-tinta-media: #3D3D3D;
+  --color-tinta-fraca: #6E6E6E;
+  --color-tinta-apagada: #8F8F8F;
+  --color-tinta-desabilitada: #A3A3A3;
+  --color-superficie: #FFFFFF;
+  --color-superficie-2: #F9F9F9;
+  --color-ativo: #ECECEC;
+  --color-traco: #E5E5E5;
+  --color-traco-forte: #D9D9D9;
+
+  /* Semântica — só no painel (spec 16.2) */
+  --color-sucesso: #15803D;
+  --color-aviso: #B45309;
+  --color-perigo: #B91C1C;
+
+  /* Cartão: neutros (spec 16.2) */
+  --color-cartao-texto: #18181B;
+  --color-cartao-texto-2: #52525B;
+  --color-cartao-texto-3: #A8A29E;
+  --color-cartao-traco: #E7E5E4;
+  --color-cartao-fundo-2: #FAFAF9;
+
+  /* Cartão: as oito cores de destaque, dois tons cada (spec 16.2) */
+  --color-destaque-azul-fundo: #1D4ED8;
+  --color-destaque-azul-texto: #1E40AF;
+  --color-destaque-verde-fundo: #15803D;
+  --color-destaque-verde-texto: #166534;
+  --color-destaque-roxo-fundo: #6D28D9;
+  --color-destaque-roxo-texto: #5B21B6;
+  --color-destaque-vermelho-fundo: #BE123C;
+  --color-destaque-vermelho-texto: #9F1239;
+  --color-destaque-laranja-fundo: #C2410C;
+  --color-destaque-laranja-texto: #9A3412;
+  --color-destaque-rosa-fundo: #BE185D;
+  --color-destaque-rosa-texto: #9D174D;
+  --color-destaque-grafite-fundo: #27272A;
+  --color-destaque-grafite-texto: #18181B;
+  --color-destaque-dourado-fundo: #A16207;
+  --color-destaque-dourado-texto: #854D0E;
+
+  --font-texto: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
+}
+
+/* A página pública não segue o tema do sistema: o cartão tem a cor escolhida
+   pelo dono, e herdar o modo escuro do visitante desfiguraria a peça de outra
+   pessoa (spec 3.2 e 16.1). */
+html { color-scheme: light; }
+body { margin: 0; font-family: var(--font-texto); }

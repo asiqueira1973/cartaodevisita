@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "diagnostico": "node scripts/diagnostico.mjs"
   },
   "dependencies": {
     "firebase-admin": "^13.10.0",

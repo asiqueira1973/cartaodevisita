@@ -33,31 +33,74 @@ function arquivos(pasta: string, extensoes = ['.ts', '.tsx']): string[] {
 const ler = (caminho: string) => readFileSync(caminho, 'utf8')
 const curto = (caminho: string) => relative(RAIZ, caminho)
 
-describe('pegadinha 18.4.1 — guarda na primeira linha de toda rota protegida', () => {
-  it('toda rota /api/conta/* chama requireDono antes de tocar em dados', () => {
-    for (const rota of arquivos('app/api/conta')) {
-      const fonte = ler(rota)
-      expect(fonte, `${curto(rota)} não chama requireDono`).toContain('requireDono')
+/**
+ * Remove comentários e linhas de import antes da análise.
+ *
+ * Sem isso o teste dá FALSO POSITIVO: o comentário de cabeçalho da rota cita
+ * `requireDono()`, e a posição encontrada seria a do comentário, não a da
+ * chamada real. Importar `@/lib/firebase/firestore` no topo é legítimo e
+ * inevitável — o que não pode é USAR o dado antes de autorizar.
+ */
+function codigoExecutavel(fonte: string): string {
+  return fonte
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '')
+    .replace(/^\s*import[\s\S]*?from\s+['"][^'"]+['"];?\s*$/gm, '')
+}
 
-      const posGuarda = fonte.indexOf('requireDono(')
-      for (const proibido of ['db()', 'bucket()', 'firestore', 'storage']) {
-        const posDado = fonte.indexOf(proibido)
-        if (posDado === -1) continue
-        expect(posDado, `${curto(rota)} toca ${proibido} antes de autorizar`).toBeGreaterThan(posGuarda)
+/** Separa o corpo de cada handler exportado (GET, POST, PATCH, PUT, DELETE). */
+function handlers(fonte: string): { nome: string; corpo: string }[] {
+  const achados: { nome: string; corpo: string }[] = []
+  const padrao = /export\s+async\s+function\s+(GET|POST|PATCH|PUT|DELETE)\b/g
+  const inicios = [...fonte.matchAll(padrao)]
+  inicios.forEach((m, i) => {
+    const fim = i + 1 < inicios.length ? inicios[i + 1].index! : fonte.length
+    achados.push({ nome: m[1], corpo: fonte.slice(m.index!, fim) })
+  })
+  return achados
+}
+
+const ACESSO_A_DADOS = ['db(', 'bucket(', 'reservarHandle(', 'trocarHandle(', 'handleEstaTomado(',
+  'buscarCartao', 'registrarVisita(', 'excluirConta(', 'alterarPlano(', 'resolverIdPermanente(']
+
+describe('pegadinha 18.4.1 — guarda antes de qualquer toque em dados', () => {
+  it('encontra as rotas que precisa auditar', () => {
+    // Um teste estrutural que não enxerga arquivo nenhum passa sempre e não
+    // protege nada. Esta asserção falha se a varredura quebrar.
+    const rotas = [...arquivos('app/api/conta'), ...arquivos('app/api/admin')]
+    expect(rotas.length).toBeGreaterThan(0)
+  })
+
+  it('todo handler de /api/conta/* chama requireDono antes de tocar em dados', () => {
+    for (const rota of arquivos('app/api/conta')) {
+      const codigo = codigoExecutavel(ler(rota))
+      expect(codigo, `${curto(rota)} não chama requireDono`).toContain('requireDono(')
+
+      for (const { nome, corpo } of handlers(codigo)) {
+        const posGuarda = corpo.indexOf('requireDono(')
+        expect(posGuarda, `${curto(rota)} · ${nome} não chama requireDono`).toBeGreaterThan(-1)
+        for (const proibido of ACESSO_A_DADOS) {
+          const posDado = corpo.indexOf(proibido)
+          if (posDado === -1) continue
+          expect(posDado, `${curto(rota)} · ${nome} toca ${proibido} antes de autorizar`)
+            .toBeGreaterThan(posGuarda)
+        }
       }
     }
   })
 
-  it('toda rota /api/admin/* chama requireAdminPlataforma antes de tocar em dados', () => {
+  it('todo handler de /api/admin/* chama requireAdminPlataforma antes de tocar em dados', () => {
     for (const rota of arquivos('app/api/admin')) {
-      const fonte = ler(rota)
-      expect(fonte, `${curto(rota)} não chama requireAdminPlataforma`).toContain('requireAdminPlataforma')
-
-      const posGuarda = fonte.indexOf('requireAdminPlataforma(')
-      for (const proibido of ['db()', 'bucket()']) {
-        const posDado = fonte.indexOf(proibido)
-        if (posDado === -1) continue
-        expect(posDado, `${curto(rota)} toca ${proibido} antes de autorizar`).toBeGreaterThan(posGuarda)
+      const codigo = codigoExecutavel(ler(rota))
+      for (const { nome, corpo } of handlers(codigo)) {
+        const posGuarda = corpo.indexOf('requireAdminPlataforma(')
+        expect(posGuarda, `${curto(rota)} · ${nome} não chama requireAdminPlataforma`).toBeGreaterThan(-1)
+        for (const proibido of ACESSO_A_DADOS) {
+          const posDado = corpo.indexOf(proibido)
+          if (posDado === -1) continue
+          expect(posDado, `${curto(rota)} · ${nome} toca ${proibido} antes de autorizar`)
+            .toBeGreaterThan(posGuarda)
+        }
       }
     }
   })
