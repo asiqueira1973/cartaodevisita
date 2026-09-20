@@ -1649,7 +1649,9 @@ Usados quando `rotulo` é nulo.
 | Home, botão | `Criar meu cartão` |
 | Home, ao lado do botão | `Grátis, sem cartão` |
 | Home, rodapé | `Cartão de Visita — Dab Lab` · `Termos` · `Privacidade` · `<e-mail de suporte>` |
+| Login, título | `Entre para montar seu cartão` |
 | Login, botão | `Entrar com o Google` |
+| Login, rodapé | `Sem senha para lembrar. Ao entrar, você concorda com os termos e a privacidade.` |
 
 #### 15.4.1 Os três blocos de objeção da home
 

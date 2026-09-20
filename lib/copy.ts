@@ -33,7 +33,9 @@ export const TEXTOS = {
     'Monte o seu em cinco minutos. Compartilhe por link, QR code ou etiqueta NFC. Do outro lado, ninguém precisa instalar nada.',
   homeBotao: 'Criar meu cartão',
   homeGarantia: 'Grátis, sem cartão',
+  loginTitulo: 'Entre para montar seu cartão',
   loginBotao: 'Entrar com o Google',
+  loginRodape: 'Sem senha para lembrar. Ao entrar, você concorda com os termos e a privacidade.',
   escolhaTitulo: 'Escolha seu endereço',
   escolhaAjuda:
     'É o link que você vai compartilhar. Dá para mudar depois, mas os links antigos param de funcionar.',
