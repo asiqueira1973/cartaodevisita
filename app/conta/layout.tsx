@@ -9,6 +9,7 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { garantirUsuario } from '@/lib/firebase/firestore'
+import { firstName } from '@/lib/display-name'
 import { Sidebar } from '@/components/account/Sidebar'
 
 export default async function ContaLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +28,7 @@ export default async function ContaLayout({ children }: { children: React.ReactN
 
   if (!usuario.handle) redirect('/conta/handle')
 
-  const primeiroNome = usuario.nome_google.trim().split(/\s+/)[0] ?? 'Você'
+  const primeiroNome = firstName(usuario.nome_google)
 
   return (
     <div className="flex min-h-screen bg-superficie">

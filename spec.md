@@ -1392,6 +1392,45 @@ rebaixamento. Descartada porque destruiria dado do usuário por uma mudança
 administrativa — e porque apagar conteúdo sem o usuário pedir é o tipo de coisa
 que se descobre tarde e não se desfaz.
 
+### 11.12 Nome de exibição em caixa alta
+
+**Decidida em 20/09/2026, depois de aparecer rodando o épico 8.1.** Conta do
+Google criada a partir de documento oficial costuma trazer o nome INTEIRO EM
+MAIÚSCULAS, e isso é frequente justamente no público da seção 1. No cartão o nome
+é o elemento de 28 px do topo — em caixa alta ele parece um grito.
+
+| Regra | Valor |
+|---|---|
+| Quando age | **só** quando o nome não tem nenhuma letra minúscula |
+| O que faz | converte para caixa de título ao **pré-preencher** `nome_exibicao` |
+| Partículas minúsculas | `de da do das dos e di du del della la le van von y` |
+| Primeira palavra | sempre maiúscula, mesmo sendo partícula — `DA SILVA NETO` → `Da Silva Neto` |
+| Hífen e apóstrofo | a letra seguinte também sobe — `JEAN-PIERRE D’ÁVILA` → `Jean-Pierre D’Ávila` |
+| Acento | a detecção e a conversão usam locale `pt-BR`, para `Ç`, `Ã` e `É` funcionarem |
+| Nome já misturado | **não é tocado** |
+| Onde é aplicada | no servidor, ao criar o cartão, e no rodapé do menu |
+
+**Nome já misturado não é tocado de propósito:** mexer nele estragaria `McSilva`,
+`d’Ávila` e `LuizA`, e quem escreveu assim escreveu de propósito. O campo continua
+editável — isto é um palpite inicial, não uma correção.
+
+**Não se aplica ao `nome_google`**, que guarda o que o provedor mandou, nem ao
+handle, que tem a própria normalização (regra 11.1).
+
+### 11.13 Tamanho de propriedade de evento
+
+| Regra | Valor |
+|---|---|
+| Corte de string em propriedade de evento | **64 caracteres** |
+| O que acontece acima disso | a propriedade é **descartada**, não truncada |
+
+É a linha de defesa contra conteúdo do cartão vazar por engano para o Visão de
+Produto (regra 21.3.1, item 5): valor de enum do spec cabe folgado, bio e
+endereço não cabem. Descartar em vez de truncar é deliberado — metade de uma bio
+continua sendo bio.
+
+*Ratificada em 20/09/2026. Era a pergunta aberta 25.10.*
+
 ---
 
 ## 12. Máquinas de estado
@@ -1884,6 +1923,11 @@ Aparência, Compartilhar, QR em tela cheia e Admin · Contas.
 | `/conta/handle` | A tela de escolha do endereço, que é o momento mais difícil do painel (2.1) |
 | Estado vazio de Links | Texto já definido em 8.3 |
 | 404 | Copy já definida em 15.4 |
+
+**Resolvido em 20/09/2026:** o ícone do produto (`app/icon.svg`) — o quadrado
+preto de cantos arredondados da marca, com um cartão branco dentro mostrando foto
+e duas linhas. As formas são grandes o bastante para continuarem legíveis em
+16 px na aba do navegador.
 
 Nenhuma delas precisa de decisão nova de direção visual — o sistema das seções
 16.2, 16.4 e 16.6 já cobre todos os componentes que elas usam.
@@ -2421,7 +2465,7 @@ aparelho a coisa foi realmente testada.
 | ~~25.5~~ | ~~O cartão leva **marca do produto** no rodapé da página pública?~~ **RESPONDIDA em 20/09/2026: sim.** A marca aparece no rodapé do cartão de conta `gratuito`, e some nos demais planos. Razão declarada pelo Alexandre: *"senão nunca teremos razão para vender"*. Ver 11.11.2 | — | — | Decidida |
 | 25.6 | Termos de uso e política de privacidade: texto próprio ou reaproveitar a estrutura do ViraPágina? | Alexandre | antes do primeiro deploy | Bloqueia a publicação |
 | ~~25.9~~ | ~~Manter o `dourado` ocre ou trocar por teal?~~ **RESPONDIDA em 20/09/2026: mantém o ocre** `#A16207`. A paleta fica com as oito cores de 16.2, sem teal | — | — | Decidida |
-| 25.10 | **Número inventado, precisa de ratificação.** A regra 21.3.1 (item 5) diz que propriedade de evento só aceita número, booleano ou valor de enum, mas não deu limite de tamanho para string. `sanitizarPropriedades` corta em **64 caracteres** — valor de enum cabe folgado, bio e endereço não cabem. Foi escolhido sem consulta, contra a regra de não inventar número (seção 11). Ratificar e mover para a seção 11, ou trocar o valor | Alexandre | antes do épico 8.10 | Nenhum — é uma constante em `lib/telemetria.ts` |
+| ~~25.10~~ | ~~O corte de 64 caracteres em propriedade de evento foi escolhido sem consulta.~~ **RESPONDIDA em 20/09/2026: ratificado.** Virou a regra 11.13 | — | — | Decidida |
 | 25.7 | Existe limite de contas por pessoa? Hoje, um e-mail = uma conta, e nada impede alguém de criar dez | Alexandre | quando virar problema | Sem impacto imediato |
 | ~~25.8~~ | ~~O título da home descreve o artefato em vez da transformação.~~ **RESPONDIDA em 20/09/2026:** o título é `Seu contato na agenda de quem você acabou de conhecer.` O subtítulo foi encurtado junto, porque `quem recebe salva seu contato` virou redundante com o título novo. Ver 15.4 | — | — | Decidida |
 

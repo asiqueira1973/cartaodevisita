@@ -11,6 +11,7 @@ import { db } from '@/lib/firebase/admin'
 import { generatePermanentId } from '@/lib/ids'
 import { isHandleSelectable } from '@/lib/handle'
 import { planoInicial, reconciliarPlano } from '@/lib/planos'
+import { normalizeDisplayName } from '@/lib/display-name'
 import type { Cartao, PlanoConta, Usuario, VisitaDiaria } from '@/types/dominio'
 
 const USUARIOS = 'usuarios'
@@ -93,7 +94,9 @@ export async function garantirUsuario(
     const lote = db().batch()
     lote.set(refUsuario, novo)
     lote.set(db().collection(CARTOES).doc(uid), {
-      usuario_id: uid, nome_exibicao: nomeGoogle,
+      // O nome do Google vem em CAIXA ALTA com frequência (regra 11.12). No
+      // cartão ele é o elemento de 28 px do topo, e caixa alta parece um grito.
+      usuario_id: uid, nome_exibicao: normalizeDisplayName(nomeGoogle),
       cargo: null, empresa: null, bio: null,
       foto_url: null, foto_vcard_url: null, links: [],
       template: 'minimalista', cor_destaque: 'azul',
