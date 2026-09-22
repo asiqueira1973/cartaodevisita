@@ -137,7 +137,7 @@ erro do painel sumir no meio da interface.
 |---|---|---|---|
 | **Cartão** | `/<handle>` | A peça. Ver os quatro templates acima | WhatsApp, cada link, salvar contato, abrir QR |
 | QR em tela cheia | `/<handle>/qr` | QR preto sobre branco puro ocupando no mínimo **70% da menor dimensão da tela**, handle em texto pequeno, e **nada mais** | Voltar |
-| Home | `/` | Cabeçalho fino, bloco principal com mockup do cartão, três blocos de objeção, rodapé — ver detalhamento abaixo | Entrar, Criar meu cartão |
+| Home | `/` | Cabeçalho fino, bloco principal com mockup do cartão, quatro casos de uso, quatro públicos, fechamento, rodapé — ver detalhamento abaixo | Entrar, Criar meu cartão |
 | 404 | — | Mensagem neutra e link para a home | — |
 | Termos / Privacidade | `/termos`, `/privacidade` | Texto legal | — |
 
@@ -202,20 +202,38 @@ outra pessoa. São **nove palavras** — desenhe em serifada grande, quebrando e
 **duas ou três linhas**, sem apertar. Se precisar reduzir o corpo da fonte para
 caber em duas, prefira três linhas e o tamanho maior.
 
-### Os três cartões de objeção
+### Onde a etiqueta vive — quatro cartões
 
-Não são funcionalidades. Cada um derruba uma objeção, e o do meio é o mais
-importante — é o único que nenhum concorrente pode copiar sem refazer a
-arquitetura de URL.
+Quatro lugares concretos onde a etiqueta fica colada, em grade de 2×2 no desktop
+e empilhada no celular. Cada um é um objeto que a pessoa já carrega todo dia — a
+venda é "cola aqui", não "instale isto". Título curto em negrito, duas ou três
+linhas de texto, sem ícone: o texto já é concreto o bastante.
 
 | Posição | Título | Texto |
 |---|---|---|
-| 1 | **Sem app, dos dois lados** | Quem recebe aponta a câmera ou encosta o celular, e seu cartão abre no navegador. Sem instalar nada, sem criar conta, sem login. Só uma das duas pessoas precisa ter conta aqui — você. |
-| **2 (meio)** | **Seu QR nunca quebra** | Mudou de endereço, de emprego ou de telefone? O QR que você imprimiu e a etiqueta que você gravou continuam levando ao seu cartão atualizado. Isso não é promessa: o endereço gravado nunca muda. |
-| 3 | **Quem recebe não é rastreado** | Sem cookie, sem pixel, sem ferramenta de análise de terceiro. Você vê quantas visitas seu cartão teve; não vê quem entrou — e ninguém mais vê também. |
+| 1 | **No crachá do evento** | Encostou o crachá no celular de quem você acabou de conhecer e pronto. Nada de ditar Instagram no barulho nem anotar telefone errado no guardanapo. |
+| 2 | **No crachá de trabalho** | Quem te recebe na visita, na obra ou no balcão sai com seu contato salvo — com foto, cargo e WhatsApp — sem você soletrar nada. |
+| 3 | **Atrás do celular** | Uma etiqueta colada na capa. Você já tira o telefone do bolso o tempo todo; agora ele passa seu contato junto. |
+| 4 | **Na carteira** | Um cartão que não acaba, não amassa e não fica velho quando você muda de número, de empresa ou de foto. |
 
-Ícones sugeridos, de traço fino, na cor da marca: **1** celular com onda de NFC ou
-QR; **2** link ou escudo; **3** olho ou cadeado.
+### Para quem é — quatro colunas
+
+Mais leve que o bloco acima: sem caixa, só um traço fino no topo de cada coluna,
+título e duas linhas. A pessoa precisa se reconhecer em uma delas em menos de um
+segundo.
+
+| Posição | Título | Texto |
+|---|---|---|
+| 1 | **Para você** | Conheceu alguém num jantar, numa viagem, na fila. Um toque e a pessoa tem seu contato certo. |
+| 2 | **Autônomos** | Psicanalista, arquiteto, dentista, personal, eletricista. Quem atende e precisa ser encontrado depois. |
+| 3 | **Times de campo** | Técnicos, instaladores, vistoriadores. Cada um com o próprio cartão, sem imprimir nada. |
+| 4 | **Força de vendas** | Representantes e corretores que visitam muito e não querem depender do papel que o cliente perdeu. |
+
+### Fechamento
+
+Centralizado, uma linha e o botão de novo: *Leva cinco minutos e não precisa de
+nada além da sua conta Google.* Quem rolou a página inteira não deve ter que
+subir para achar o botão.
 
 ---
 

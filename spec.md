@@ -1178,7 +1178,7 @@ Rótulo entre colchetes = perfil que acessa.
 
 | Tela | Rota | Mostra | Ações | Lê | Escreve |
 |---|---|---|---|---|---|
-| Home | `/` | Cabeçalho fino; bloco principal com título, subtítulo, botão e a garantia ao lado; mockup de um cartão real à direita; os **três blocos de objeção** de 15.4.1; rodapé com termos, privacidade e contato | Entrar, Criar meu cartão | — | — |
+| Home | `/` | Cabeçalho fino; bloco principal com título, subtítulo, botão e a garantia ao lado; mockup de um cartão real à direita; os **quatro casos de uso** de 15.4.1; os **quatro públicos** de 15.4.2; rodapé com o fechamento e o botão; rodapé com termos, privacidade e contato | Entrar, Criar meu cartão | — | — |
 | **Cartão** | `/<handle>` | Foto, nome, cargo, empresa, bio, links na ordem, QR | WhatsApp, cada link, salvar contato, abrir QR | `handles`, `cartoes` | `visitas_diarias` |
 | Redirecionador | `/c/<id>` | *(sem tela — 308)* | — | `ids_permanentes`, `usuarios` | — |
 | QR tela cheia | `/<handle>/qr` | QR grande, handle em texto pequeno | Voltar | `handles`, `cartoes` | — |
@@ -1760,9 +1760,10 @@ Usados quando `rotulo` é nulo.
 | Onde | Texto |
 |---|---|
 | Home, título | `Seu contato na agenda de quem você acabou de conhecer.` |
-| Home, subtítulo | `Monte o seu em cinco minutos. Compartilhe por link, QR code ou etiqueta NFC. Do outro lado, ninguém precisa instalar nada.` |
+| Home, subtítulo | `Uma etiqueta na carteira, no crachá ou atrás do celular. A pessoa encosta o telefone e seus dados já estão lá — sem app, sem digitar, sem perder o cartãozinho de papel.` |
 | Home, botão | `Criar meu cartão` |
-| Home, ao lado do botão | `Grátis, sem cartão` |
+| Home, ao lado do botão | `Grátis, sem cartão de crédito` |
+| Home, fechamento | `Leva cinco minutos e não precisa de nada além da sua conta Google.` |
 | Home, rodapé | `Cartão de Visita — Dab Lab` · `Termos` · `Privacidade` · `<e-mail de suporte>` |
 | Painel, título · Meu cartão | `Meu cartão` |
 | Painel, título · Links | `Links` |
@@ -1798,22 +1799,52 @@ Usados quando `rotulo` é nulo.
 | Login, botão | `Entrar com o Google` |
 | Login, rodapé | `Sem senha para lembrar. Ao entrar, você concorda com os termos e a privacidade.` |
 
-#### 15.4.1 Os três blocos de objeção da home
+#### 15.4.1 Onde a etiqueta vive — quatro casos de uso
 
-Padrão herdado do ViraPágina: abaixo do bloco principal, **três cartões lado a
-lado**, cada um com um ícone, um título curto e duas ou três linhas. Eles não
-listam funcionalidade — cada um **derruba uma objeção específica**, e cada um
-corresponde a um princípio da seção 0. É por isso que são exatamente estes três.
+A home antiga trazia três cartões que derrubavam objeções — "sem app dos dois
+lados", "seu QR nunca quebra", "quem recebe não é rastreado". Saíram em
+22/09/2026, a pedido do responsável: *"o texto do site tem que ficar mais
+marketing e menos técnico"* e, sobre o terceiro, *"não faz nenhum sentido isso"*.
+Eram resposta para pergunta que ninguém faz. Quem chega na home não está
+preocupado com rastreamento nem com arquitetura de URL; está tentando entender
+**para que aquilo serve na vida dele**.
 
-| # | Título | Texto | Princípio que defende |
-|---|---|---|---|
-| 1 | `Sem app, dos dois lados` | `Quem recebe aponta a câmera ou encosta o celular, e seu cartão abre no navegador. Sem instalar nada, sem criar conta, sem login. Só uma das duas pessoas precisa ter conta aqui — você.` | 0.1 |
-| 2 | `Seu QR nunca quebra` | `Mudou de endereço, de emprego ou de telefone? O QR que você imprimiu e a etiqueta que você gravou continuam levando ao seu cartão atualizado. Isso não é promessa: o endereço gravado nunca muda.` | 0.4 |
-| 3 | `Quem recebe não é rastreado` | `Sem cookie, sem pixel, sem ferramenta de análise de terceiro. Você vê quantas visitas seu cartão teve; não vê quem entrou — e ninguém mais vê também.` | 20.2 |
+No lugar entram quatro lugares concretos onde a etiqueta fica colada. Cada um é
+um objeto que a pessoa já carrega — a venda é "cola aqui", não "instale isto".
+Quatro cartões, dois a dois no celular, em grade de 2×2.
 
-O bloco 2 é o mais importante dos três, porque é o único que **nenhum concorrente
-pode copiar sem refazer a arquitetura de URL** (seção 4.3). Ele deve ser o do meio,
-que é a posição de maior leitura.
+| # | Título | Texto |
+|---|---|---|
+| 1 | `No crachá do evento` | `Encostou o crachá no celular de quem você acabou de conhecer e pronto. Nada de ditar Instagram no barulho nem anotar telefone errado no guardanapo.` |
+| 2 | `No crachá de trabalho` | `Quem te recebe na visita, na obra ou no balcão sai com seu contato salvo — com foto, cargo e WhatsApp — sem você soletrar nada.` |
+| 3 | `Atrás do celular` | `Uma etiqueta colada na capa. Você já tira o telefone do bolso o tempo todo; agora ele passa seu contato junto.` |
+| 4 | `Na carteira` | `Um cartão que não acaba, não amassa e não fica velho quando você muda de número, de empresa ou de foto.` |
+
+O caso 4 é o que guarda a promessa da seção 0.4 sem falar dela: "não fica velho
+quando você muda de número" **é** o endereço permanente, dito na língua de quem
+compra.
+
+#### 15.4.2 Para quem é — quatro públicos
+
+Abaixo dos casos de uso, quatro colunas curtas. Servem para a pessoa se
+reconhecer em uma delas em menos de um segundo — por isso o título é o rótulo do
+público, não um benefício.
+
+| # | Título | Texto |
+|---|---|---|
+| 1 | `Para você` | `Conheceu alguém num jantar, numa viagem, na fila. Um toque e a pessoa tem seu contato certo.` |
+| 2 | `Autônomos` | `Psicanalista, arquiteto, dentista, personal, eletricista. Quem atende e precisa ser encontrado depois.` |
+| 3 | `Times de campo` | `Técnicos, instaladores, vistoriadores. Cada um com o próprio cartão, sem imprimir nada.` |
+| 4 | `Força de vendas` | `Representantes e corretores que visitam muito e não querem depender do papel que o cliente perdeu.` |
+
+A ordem é proposital: começa em uso pessoal, que é o de entrada, e termina em uso
+de equipe, que é de onde sairia a venda se um dia o app cobrasse (seção 1.0 —
+este app é portfólio, não negócio).
+
+#### 15.4.3 Resto dos textos do produto
+
+| Onde | Texto |
+|---|---|
 | Escolha do endereço, título | `Escolha seu endereço` |
 | Escolha do endereço, ajuda | `É o link que você vai compartilhar. Dá para mudar depois, mas os links antigos param de funcionar.` |
 | Cartão público, botão de contato | `Salvar nos contatos` |
@@ -2029,7 +2060,7 @@ Aparência, Compartilhar, QR em tela cheia e Admin · Contas.
 
 | Tela | Observação |
 |---|---|
-| Home, em 1280 e 375 | Estrutura e copy já especificadas (15.4 e 15.4.1); falta o desenho, incluindo o mockup do cartão dentro de um celular |
+| Home, em 1280 e 375 | Estrutura e copy já especificadas (15.4, 15.4.1 e 15.4.2); falta o desenho, incluindo o mockup do cartão dentro de um celular |
 | `/admin/contas/[id]` | As quatro ações de moderação e o histórico |
 | `/conta/ajustes` | Inclui a zona de risco e a exclusão de conta |
 | `/conta/handle` | A tela de escolha do endereço, que é o momento mais difícil do painel (2.1) |

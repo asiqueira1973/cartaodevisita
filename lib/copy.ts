@@ -30,9 +30,16 @@ export const ERROS = {
 export const TEXTOS = {
   homeTitulo: 'Seu contato na agenda de quem você acabou de conhecer.',
   homeSubtitulo:
-    'Monte o seu em cinco minutos. Compartilhe por link, QR code ou etiqueta NFC. Do outro lado, ninguém precisa instalar nada.',
+    'Uma etiqueta na carteira, no crachá ou atrás do celular. A pessoa encosta o telefone e seus dados já estão lá — sem app, sem digitar, sem perder o cartãozinho de papel.',
   homeBotao: 'Criar meu cartão',
-  homeGarantia: 'Grátis, sem cartão',
+  homeGarantia: 'Grátis, sem cartão de crédito',
+  homeFechamento: 'Leva cinco minutos e não precisa de nada além da sua conta Google.',
+  loginTitulo: 'Entre para montar seu cartão',
+  loginBotao: 'Entrar com o Google',
+  loginRodape: 'Sem senha para lembrar. Ao entrar, você concorda com os termos e a privacidade.',
+  escolhaTitulo: 'Escolha seu endereço',
+  escolhaAjuda:
+    'É o link que você vai compartilhar. Dá para mudar depois, mas os links antigos param de funcionar.',
   painelMeuCartao: 'Meu cartão',
   painelLinks: 'Links',
   painelAparencia: 'Aparência',
@@ -63,12 +70,6 @@ export const TEXTOS = {
   adminHistorico: 'Histórico',
   painelNoAr: 'No ar em',
   painelForaDoAr: 'Fora do ar',
-  loginTitulo: 'Entre para montar seu cartão',
-  loginBotao: 'Entrar com o Google',
-  loginRodape: 'Sem senha para lembrar. Ao entrar, você concorda com os termos e a privacidade.',
-  escolhaTitulo: 'Escolha seu endereço',
-  escolhaAjuda:
-    'É o link que você vai compartilhar. Dá para mudar depois, mas os links antigos param de funcionar.',
   cartaoSalvarContato: 'Salvar nos contatos',
   cartaoAcimaDoQr: 'Aponte a câmera',
   previaTarja: 'Só você está vendo. Publique para liberar o link.',
@@ -82,6 +83,55 @@ export const TEXTOS = {
   naoEncontradoTitulo: 'Não encontrei esse cartão.',
   naoEncontradoDetalhe: 'Ele pode ter sido removido ou o endereço mudou.',
 } as const
+
+/**
+ * Onde a etiqueta vive (spec 15.4.1).
+ *
+ * Quatro lugares concretos, não quatro funcionalidades. A pessoa não compra
+ * "tecnologia NFC" — ela cola uma etiqueta em algo que já carrega todo dia.
+ */
+export const ONDE_USAR = [
+  {
+    titulo: 'No crachá do evento',
+    texto:
+      'Encostou o crachá no celular de quem você acabou de conhecer e pronto. Nada de ditar Instagram no barulho nem anotar telefone errado no guardanapo.',
+  },
+  {
+    titulo: 'No crachá de trabalho',
+    texto:
+      'Quem te recebe na visita, na obra ou no balcão sai com seu contato salvo — com foto, cargo e WhatsApp — sem você soletrar nada.',
+  },
+  {
+    titulo: 'Atrás do celular',
+    texto:
+      'Uma etiqueta colada na capa. Você já tira o telefone do bolso o tempo todo; agora ele passa seu contato junto.',
+  },
+  {
+    titulo: 'Na carteira',
+    texto:
+      'Um cartão que não acaba, não amassa e não fica velho quando você muda de número, de empresa ou de foto.',
+  },
+] as const
+
+/** Para quem o produto é (spec 15.4.2). */
+export const PARA_QUEM = [
+  {
+    titulo: 'Para você',
+    texto: 'Conheceu alguém num jantar, numa viagem, na fila. Um toque e a pessoa tem seu contato certo.',
+  },
+  {
+    titulo: 'Autônomos',
+    texto: 'Psicanalista, arquiteto, dentista, personal, eletricista. Quem atende e precisa ser encontrado depois.',
+  },
+  {
+    titulo: 'Times de campo',
+    texto: 'Técnicos, instaladores, vistoriadores. Cada um com o próprio cartão, sem imprimir nada.',
+  },
+  {
+    titulo: 'Força de vendas',
+    texto: 'Representantes e corretores que visitam muito e não querem depender do papel que o cliente perdeu.',
+  },
+] as const
 
 /**
  * Bloco de instruções de NFC (spec 15.5).
