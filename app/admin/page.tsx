@@ -1,6 +1,9 @@
 // Contas — a listagem da plataforma (critério 8.9.2, spec 10.3).
 
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { isPlatformAdmin } from '@/lib/admins'
 import { listarContas } from '@/lib/firebase/firestore'
 import { SeloDePlano } from '@/components/platform/SeloDePlano'
 import { TEXTOS } from '@/lib/copy'
@@ -8,6 +11,12 @@ import { TEXTOS } from '@/lib/copy'
 export const metadata = { title: 'Contas · Admin', robots: { index: false, follow: false } }
 
 export default async function AdminContasPage() {
+  // A guarda do layout NÃO basta: numa navegação do cliente o App Router pode
+  // renderizar só a página, sem reexecutar o layout. A checagem fica junto do
+  // dado (spec 6.5, pegadinha 18.4.2: 404 para quem não é admin).
+  const sessao = await auth()
+  if (!isPlatformAdmin(sessao?.user?.email)) notFound()
+
   const contas = await listarContas()
   const earlyAdopters = contas.filter((c) => c.usuario.plano === 'early_adopter').length
   const ilimitadas = contas.filter((c) => c.usuario.plano === 'ilimitado').length

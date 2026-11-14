@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { auth } from '@/lib/auth'
+import { isPlatformAdmin } from '@/lib/admins'
 import { buscarContaParaAdmin, visitasRecentes } from '@/lib/firebase/firestore'
 import { somarVisitas } from '@/lib/publicacao'
 import { SeloDePlano } from '@/components/platform/SeloDePlano'
@@ -19,6 +21,10 @@ const NOME_DA_ACAO: Record<string, string> = {
 }
 
 export default async function ContaDoAdminPage({ params }: { params: Promise<{ id: string }> }) {
+  // Mesma guarda do layout, repetida aqui de propósito: ver app/admin/page.tsx.
+  const sessao = await auth()
+  if (!isPlatformAdmin(sessao?.user?.email)) notFound()
+
   const { id } = await params
   const conta = await buscarContaParaAdmin(id)
   if (!conta) notFound()

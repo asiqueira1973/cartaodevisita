@@ -107,6 +107,23 @@ describe('pegadinha 18.4.1 — guarda antes de qualquer toque em dados', () => {
 })
 
 describe('pegadinha 18.4.2 — 404, nunca 403', () => {
+  it('toda página sob app/admin checa o admin por conta própria, não só no layout', () => {
+    // Em navegação do cliente o App Router pode renderizar só a página, sem
+    // reexecutar o layout. Por isso cada page.tsx repete a guarda (spec 6.5).
+    const paginas = arquivos('app/admin').filter((a) => a.endsWith('page.tsx'))
+    expect(paginas.length).toBeGreaterThan(0)
+    for (const pagina of paginas) {
+      const codigo = codigoExecutavel(ler(pagina))
+      const posGuarda = codigo.indexOf('isPlatformAdmin(')
+      expect(posGuarda, `${curto(pagina)} não chama isPlatformAdmin`).toBeGreaterThan(-1)
+      for (const proibido of [...ACESSO_A_DADOS, 'listarContas(', 'buscarContaParaAdmin(', 'visitasRecentes(']) {
+        const posDado = codigo.indexOf(proibido)
+        if (posDado === -1) continue
+        expect(posDado, `${curto(pagina)} toca ${proibido} antes de checar o admin`).toBeGreaterThan(posGuarda)
+      }
+    }
+  })
+
   it('o único 403 do projeto é o da conta bloqueada em guards.ts', () => {
     // Exceção declarada (spec 18.4.2): uma conta bloqueada recebendo 403 nas
     // PRÓPRIAS rotas não confirma a existência de recurso alheio — ela já sabe
